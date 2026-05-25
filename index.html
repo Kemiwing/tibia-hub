@@ -3,1095 +3,1200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tibia Hub</title>
+    <title>Tibia Hub - Command Center</title>
     <style>
-        /* --- GLOBAL & THEME --- */
-        body { font-family: Arial, sans-serif; background-color: #1e2124; color: #d1d1d1; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e2124; }
+        /* =========================================================
+           1. TIBIA AESTHETIC & GLOBAL VARS
+        ========================================================= */
+        :root {
+            --bg-dark: #0a0b0c;
+            --panel-bg: #1c1e22;
+            --border-light: #5a6068;
+            --border-dark: #0a0b0c;
+            --tibia-gold: #d4af37;
+            --text-main: #d1d1d1;
+            --btn-blue: linear-gradient(to bottom, #4a6fa5, #2b456b);
+            --btn-green: linear-gradient(to bottom, #5cb85c, #2e7d32);
+            --btn-red: linear-gradient(to bottom, #d9534f, #c9302c);
+            --btn-gold: linear-gradient(to bottom, #f1c40f, #b7950b);
+        }
+
+        body { font-family: Tahoma, Geneva, sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; overflow-x: hidden;}
+        ::-webkit-scrollbar { width: 8px; height: 8px;}
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-        h1, h2, h3, h4 { margin-top: 0; color: #f1c40f; }
-        h3 { border-bottom: 1px solid #444; padding-bottom: 10px; }
+
+        /* Typography */
+        h1, h2, h3, h4 { margin-top: 0; color: var(--tibia-gold); font-family: Georgia, serif; text-shadow: 1px 1px 2px black;}
+        h3 { border-bottom: 1px solid #333; padding-bottom: 5px; box-shadow: 0 1px 0 rgba(255,255,255,0.05); }
+
+        /* The Tibia Logo Mimic */
+        .tibia-logo {
+            font-family: Georgia, serif; font-size: 26px; font-weight: 900; letter-spacing: 1px;
+            background: linear-gradient(to bottom, #fff6a9 0%, #d4af37 40%, #8a5a19 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 2px 0px #000) drop-shadow(-1px -1px 0px #222);
+            margin-right: auto; white-space: nowrap;
+        }
+
+        /* In-Game Panel Bevels */
+        .panel { 
+            background-color: var(--panel-bg); padding: 15px; margin-bottom: 20px;
+            border: 2px solid #222; border-radius: 2px;
+            box-shadow: inset 1px 1px 0 var(--border-light), inset -1px -1px 0 var(--border-dark), 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        /* =========================================================
+           2. NAVIGATION
+        ========================================================= */
+        .navbar { 
+            background: #111; border-bottom: 2px solid #000; box-shadow: 0 4px 6px rgba(0,0,0,0.8);
+            display: flex; gap: 5px; align-items: center; padding: 0 15px; height: 60px;
+            overflow-x: auto; white-space: nowrap;
+        }
+        .navbar::-webkit-scrollbar { display: none; } /* Hide scrollbar on mobile swipe */
         
-        /* --- NAVBAR & DROPDOWN --- */
-        .navbar { background-color: #2f3136; padding: 0 20px; display: flex; gap: 10px; border-bottom: 2px solid #202225; box-shadow: 0 2px 5px rgba(0,0,0,0.5); align-items: center; height: 60px;}
-        .navbar-brand { color: #f1c40f; font-weight: bold; font-size: 20px; margin-right: auto; }
-        .nav-btn { background: none; border: none; color: #d1d1d1; font-size: 15px; font-weight: bold; cursor: pointer; padding: 20px 15px; border-radius: 0; transition: 0.2s; height: 100%;}
-        .nav-btn:hover { background-color: #40444b; color: white; }
-        .nav-btn.active { background-color: #7289da; color: white; border-bottom: 3px solid white;}
-        
-        .dropdown { position: relative; display: inline-block; height: 100%;}
-        .dropbtn { background: #3ba55c; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer; padding: 0 20px; height: 100%; border-radius: 0; transition: 0.2s;}
-        .dropbtn:hover { background: #2d7d46; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 60px; background-color: #2f3136; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.8); z-index: 1000; border: 1px solid #444; border-radius: 0 0 4px 4px; overflow: hidden;}
-        .dropdown-content a { color: white; padding: 12px 16px; text-decoration: none; display: block; font-size: 14px; font-weight: bold; border-bottom: 1px solid #444;}
-        .dropdown-content a:hover { background-color: #40444b; color: #f1c40f; }
+        .nav-btn { 
+            background: none; border: none; color: #999; font-size: 14px; font-weight: bold; cursor: pointer; 
+            padding: 0 15px; height: 100%; transition: 0.2s; font-family: Tahoma, sans-serif;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-btn.active { color: var(--tibia-gold); border-bottom: 3px solid var(--tibia-gold); }
+
+        .dropdown { position: relative; height: 100%; display: flex; align-items: center; margin-left: auto;}
+        .dropbtn { background: var(--btn-green); color: white; border: 1px solid #111; border-radius: 2px; padding: 6px 12px; font-weight: bold; cursor: pointer; box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3);}
+        .dropdown-content { display: none; position: absolute; right: 0; top: 60px; background: var(--panel-bg); border: 2px solid #111; box-shadow: inset 1px 1px 0 var(--border-light), 0 8px 16px rgba(0,0,0,0.9); z-index: 2000; min-width: 200px;}
+        .dropdown-content a { color: #ddd; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #222; font-size: 13px;}
+        .dropdown-content a:hover { background: #333; color: var(--tibia-gold); }
         .dropdown:hover .dropdown-content { display: block; }
 
-        /* --- LAYOUTS --- */
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        .page { display: none; }
+        /* =========================================================
+           3. LAYOUT GRIDS & RESPONSIVE DESIGN
+        ========================================================= */
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 15px; }
+        .page { display: none; animation: fadeIn 0.3s; }
         .page.active { display: block; }
-        .panel { background-color: #36393e; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-top: 3px solid #f1c40f; margin-bottom: 20px;}
-        .grid-3col { display: grid; grid-template-columns: 250px 1fr 300px; gap: 20px; align-items: start; }
-        .grid-2col { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- INPUTS & BUTTONS --- */
-        input[type="text"], textarea, select { padding: 10px; border: 1px solid #444; background-color: #282b30; color: white; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; transition: 0.2s;}
-        button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px;}
-        .btn-primary { background-color: #7289da; color: white; } .btn-primary:hover { background-color: #5b6eae; }
-        .btn-success { background-color: #3ba55c; color: white; } .btn-success:hover { background-color: #2d7d46; }
-        .btn-danger { background-color: #ed4245; color: white; } .btn-danger:hover { background-color: #c03537; }
-        .btn-warning { background-color: #f1c40f; color: black; } .btn-warning:hover { background-color: #d4ac0d; }
-        .btn-info { background-color: #00bcd4; color: white; } .btn-info:hover { background-color: #0097a7; }
-        .btn-small { padding: 4px 8px; font-size: 12px; }
+        .grid-3col { display: grid; grid-template-columns: 280px 1fr 300px; gap: 20px; align-items: start; }
+        .grid-2col { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
 
-        /* --- AUTOCOMPLETE --- */
-        .autocomplete-wrapper { position: relative; flex: 1; }
-        .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background-color: #2f3136; max-height: 150px; overflow-y: auto; border-radius: 0 0 4px 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
-        .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px;}
-        .autocomplete-items div:hover { background-color: #7289da; color: white; }
-        .ac-source { font-size: 10px; color: #aaa; float: right; margin-top: 2px;}
+        /* Mobile First Stacking */
+        @media (max-width: 900px) {
+            .grid-3col, .grid-2col { grid-template-columns: 1fr; }
+            .tibia-logo { font-size: 20px; }
+        }
 
-        /* --- LISTS & UI --- */
-        .team-list-item { background-color: #2f3136; padding: 10px; border-radius: 4px; cursor: pointer; border: 1px solid #444; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; position: relative;}
-        .team-list-item:hover, .team-list-item.active { background-color: #40444b; border-color: #7289da;}
-        .btn-quick-del { display: none; background: #ed4245; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; cursor: pointer;}
-        .team-list-item:hover .btn-quick-del { display: block; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background-color: #2f3136; margin-bottom: 5px; border-radius: 4px; border-left: 3px solid #7289da;}
+        /* =========================================================
+           4. TIBIA UI ELEMENTS (Inputs, Buttons, Lists)
+        ========================================================= */
+        input[type="text"], textarea, select { 
+            background: #111; color: var(--tibia-gold); border: 1px solid #333; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
+            padding: 8px 12px; border-radius: 2px; font-size: 13px; width: 100%; box-sizing: border-box; font-family: Tahoma, sans-serif;
+        }
+        input:focus { outline: 1px solid var(--tibia-gold); }
+
+        button { 
+            border: 1px solid #111; border-radius: 2px; color: white; font-weight: bold; cursor: pointer;
+            padding: 6px 12px; font-size: 12px; font-family: Tahoma, sans-serif; text-shadow: 1px 1px 0 #000;
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.2), inset -1px -1px 0 rgba(0,0,0,0.4);
+            transition: 0.1s;
+        }
+        button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.6); transform: translateY(1px); }
+        .btn-primary { background: var(--btn-blue); } 
+        .btn-success { background: var(--btn-green); } 
+        .btn-danger { background: var(--btn-red); } 
+        .btn-warning { background: var(--btn-gold); color: #222; text-shadow: none;} 
+
+        /* Autocomplete */
+        .ac-wrapper { position: relative; flex: 1; }
+        .ac-list { position: absolute; z-index: 1000; top: 100%; left: 0; right: 0; background: var(--panel-bg); border: 2px solid #222; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.9);}
+        .ac-item { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #333; font-size: 13px; color: #ddd;}
+        .ac-item:hover { background: #333; color: var(--tibia-gold); }
+        .ac-src { float: right; font-size: 10px; color: #777; margin-top: 2px;}
+
+        /* Player Rows & VIP Lists */
+        .vip-item { background: #222; padding: 8px 10px; border: 1px solid #333; margin-bottom: 5px; cursor: pointer; position: relative;}
+        .vip-item:hover { background: #2a2a2a; border-color: #555; }
+        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px currentColor;}
+        .dot.online { color: #00ff00; background: #00ff00; }
+        .dot.offline { color: #aa0000; background: #aa0000; }
         
-        /* ROSTER BADGES */
-        .member-badge { background-color: #282b30; padding: 8px 12px; border-radius: 4px; font-size: 14px; border: 1px solid #555; display: inline-flex; align-items: center; gap: 8px; margin: 5px; position: relative; cursor: pointer; transition: 0.2s;}
-        .member-badge:hover { background: #40444b; border-color: #f1c40f; }
-        .hover-links { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1e2124; padding: 5px; border: 1px solid #f1c40f; border-radius: 4px; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.8); gap: 5px;}
-        .member-badge:hover .hover-links { display: flex; }
-        .hover-links a, .hover-links div { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: #2f3136; padding: 4px 8px; border-radius: 3px; white-space: nowrap; cursor: pointer;}
-        .hover-links a:hover, .hover-links div:hover { background: #7289da; }
-        .badge-edit-btn, .badge-kick-btn { display: none; padding: 3px 6px; border-radius: 3px; font-size: 10px; border:none; cursor:pointer;}
-        .badge-edit-btn { background: #00bcd4; color: white; } .badge-kick-btn { background: #ed4245; color: white; }
-        .edit-mode .badge-edit-btn, .edit-mode .badge-kick-btn { display: inline-block; }
+        .vip-menu { display: none; background: #111; border-top: 1px solid #333; padding: 5px 0; margin-top: 5px; flex-direction: column; gap: 3px;}
+        .vip-item.open .vip-menu { display: flex; }
+        .vip-menu-btn { background: none; border: none; text-align: left; padding: 5px 10px; color: #aaa; box-shadow: none; font-weight: normal;}
+        .vip-menu-btn:hover { background: #333; color: white; }
+        .vip-menu-add { color: #5cb85c; font-weight: bold; }
 
-        /* --- TRANSLATOR --- */
-        .trans-row { display: flex; gap: 5px; align-items: center; margin-bottom: 10px;}
-        .btn-swap { background: #444; color: white; border-radius: 4px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: 1px solid #555;}
-        .btn-swap:hover { background: #f1c40f; color: black; border-color: #f1c40f;}
-
-        /* --- QUICK MAPS --- */
-        .qmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .qmap-card { position: relative; background: #1e2124; border: 1px solid #444; border-radius: 4px; overflow: hidden; height: 80px; display: flex; align-items: center; justify-content: center; cursor:pointer;}
-        .qmap-card img { max-width: 100%; max-height: 100%; object-fit: cover; opacity: 0.7; transition: 0.2s;}
-        .qmap-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); flex-direction: column; align-items: center; justify-content: center; padding: 5px;}
-        .qmap-card:hover img { opacity: 0.3; }
-        .qmap-card:hover .qmap-overlay { display: flex; }
-
-        /* --- ANALYTICS / HUNTS --- */
-        .folder-list { display: flex; flex-direction: column; gap: 5px; }
-        .folder-item { background: #2f3136; padding: 12px; border-radius: 4px; border: 1px solid #444; cursor: pointer; font-weight: bold; transition: 0.1s;}
-        .folder-item:hover, .folder-item.active { background: #40444b; border-color: #f1c40f; color: #f1c40f;}
+        .search-row { display: flex; align-items: center; justify-content: space-between; background: #222; border: 1px solid #333; padding: 6px 10px; margin-bottom: 5px;}
         
-        .metric-box { background: #2f3136; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #444; flex: 1;}
-        .metric-val { font-size: 20px; font-weight: bold; color: #f1c40f; margin-top: 5px;}
-        .chart-container { display: flex; align-items: flex-end; gap: 5px; height: 150px; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #555;}
-        .chart-bar { background: #7289da; flex: 1; border-radius: 4px 4px 0 0; position: relative; min-width: 20px; transition: 0.2s;}
-        .chart-bar:hover { background: #5b6eae; opacity: 0.8;}
-        .chart-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: black; padding: 8px; font-size: 11px; border-radius: 4px; z-index: 10; white-space: pre-wrap; text-align: left; border: 1px solid #555; pointer-events: none;}
+        /* 4-Way Invite Menu */
+        .invite-wrapper { position: relative; display: inline-block; }
+        .invite-menu { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid var(--tibia-gold); padding: 5px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.9); flex-direction: column; gap: 4px; width: 100px;}
+        .invite-wrapper:hover .invite-menu { display: flex; }
+        
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; background: #111; border: 1px solid #444; padding: 4px 8px; font-size: 12px; margin: 3px; cursor: pointer; color: #ddd;}
+        .badge:hover { border-color: var(--tibia-gold); }
+
+        /* =========================================================
+           5. SPECIFIC ZONES (Maps, Hunts, Wheel)
+        ========================================================= */
+        .qmap-card { position: relative; border: 1px solid #444; height: 80px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #111; cursor: pointer;}
+        .qmap-card img { width: 100%; opacity: 0.6; }
+        .qmap-card:hover img { opacity: 0.2; }
+        .qmap-card:hover::after { content: "Copy to Discord"; position: absolute; color: #5cb85c; font-weight: bold; font-size: 12px; text-shadow: 1px 1px 0 #000;}
+
+        .chart-bar { background: var(--btn-blue); flex: 1; border-radius: 2px 2px 0 0; position: relative; min-width: 15px; border: 1px solid #111; border-bottom: none;}
+        .chart-bar:hover { filter: brightness(1.2); }
+        .chart-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid var(--tibia-gold); padding: 8px; font-size: 11px; z-index: 10; white-space: pre; color: white;}
         .chart-bar:hover .chart-tooltip { display: block; }
+
+        /* Wheel of Destiny Prototype CSS */
+        .wheel-container { width: 100%; max-width: 500px; aspect-ratio: 1/1; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAOklEQVQYV2N89erVfwY0ICYmJowXo0hjoA0g1eBq0DRCXI2uEaQYZS1hHIm/QdwYn0NIM8g8pBiE1QEAw+o2C2u4j4UAAAAASUVORK5CYII=') repeat, #111; border: 2px solid #333; border-radius: 50%; position: relative; margin: 0 auto; box-shadow: inset 0 0 50px rgba(0,0,0,0.9); overflow: hidden;}
+        .wheel-node { position: absolute; width: 24px; height: 24px; background: #222; border: 2px solid #555; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; transition: 0.2s; z-index: 2;}
+        .wheel-node:hover { border-color: white; transform: translate(-50%, -50%) scale(1.2);}
+        .wheel-node.active { background: var(--tibia-gold); border-color: #fff; box-shadow: 0 0 10px var(--tibia-gold);}
+        .wheel-center { width: 50px; height: 50px; background: #444; border: 3px solid var(--tibia-gold); left: 50%; top: 50%; z-index: 3;}
+        .wheel-line { position: absolute; background: #333; transform-origin: 0 50%; z-index: 1; height: 4px; top: 50%; left: 50%;}
+        .wheel-line.active { background: var(--tibia-gold); box-shadow: 0 0 5px var(--tibia-gold);}
+
+        /* Modals & Toasts */
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; padding: 15px;}
+        .modal-content { background: var(--panel-bg); padding: 20px; width: 100%; max-width: 400px; border: 2px solid #333; box-shadow: inset 1px 1px 0 var(--border-light), 0 10px 30px rgba(0,0,0,0.9);}
         
-        .hunt-log-item { background: #2f3136; padding: 10px; border-radius: 4px; border-left: 3px solid #3ba55c; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 13px;}
-
-        /* --- MAP CREATOR --- */
-        .canvas-toolbar { display: flex; gap: 5px; align-items: center; margin-bottom: 10px; background: #2f3136; padding: 10px; border-radius: 4px; flex-wrap: wrap;}
-        .color-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
-        .color-btn.active { border-color: #f1c40f; transform: scale(1.2); }
-        .canvas-container { position: relative; width: 100%; border: 1px solid #444; background: #1e2124; min-height: 400px; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 4px;}
-        canvas { cursor: crosshair; max-width: 100%; display: none; }
-        .map-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;}
-        .map-card { background: #2f3136; border: 1px solid #444; border-radius: 6px; padding: 10px; text-align: center;}
-        .map-card img { max-width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 150px; object-fit: contain; background: #1e2124;}
-
-        /* --- MODALS & TOAST --- */
-        #toast { visibility: hidden; min-width: 250px; background-color: #3ba55c; color: #fff; text-align: center; border-radius: 4px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
+        #toast { visibility: hidden; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #3ba55c; color: white; padding: 10px 20px; font-weight: bold; border: 1px solid #111; box-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 4000; font-size: 14px;}
         #toast.show { visibility: visible; animation: fadein 0.3s, fadeout 0.3s 2.7s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-        .modal-bg { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1500; align-items: center; justify-content: center; }
-        .modal-content { background: #282b30; padding: 25px; border-radius: 8px; width: 350px; border-top: 4px solid #f1c40f; box-shadow: 0 10px 25px rgba(0,0,0,0.9); color: white;}
-        .modal-content input, .modal-content select { margin-bottom: 10px; }
-        .profile-data-row { margin-bottom: 8px; font-size: 14px;}
-        .profile-data-row strong { color: #aaa; display: inline-block; width: 90px;}
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div class="navbar-brand">Tibia Hub</div>
-    <button class="nav-btn active" onclick="switchTab('pageMain', this)">Main Page</button>
-    <button class="nav-btn" onclick="switchTab('pageTeams', this)">My Teams</button>
+    <div class="tibia-logo">TIBIA HUB</div>
+    <button class="nav-btn active" onclick="switchTab('pageWizard', this)">Start</button>
+    <button class="nav-btn" onclick="switchTab('pageMain', this)" id="btnTabMain" style="display:none;">Command Center</button>
+    <button class="nav-btn" onclick="switchTab('pageTeams', this)">VIP & Teams</button>
     <button class="nav-btn" onclick="switchTab('pageHunts', this)">My Hunts</button>
     <button class="nav-btn" onclick="switchTab('pageMaps', this)">My Maps</button>
+    <button class="nav-btn" onclick="switchTab('pageWheel', this)">My Wheel</button>
     
     <div class="dropdown">
-        <button class="dropbtn">🌐 Quick Resources ▼</button>
+        <button class="dropbtn">🌐 Resources ▼</button>
         <div class="dropdown-content">
             <a href="https://hakaimarket.com/hunt-advisor" target="_blank">🔥 Hakai Market (Advisor)</a>
             <a href="https://tibia.fandom.com/wiki/Main_Page" target="_blank">🛡️ TibiaWiki</a>
             <a href="https://www.tibiabosses.com/" target="_blank">👹 TibiaBosses</a>
             <a href="https://guildstats.eu/" target="_blank">📊 GuildStats</a>
             <a href="https://tibiapal.com/" target="_blank">⚔️ TibiaPal</a>
-            <a href="https://intibia.com/" target="_blank">🔍 Intibia</a>
         </div>
     </div>
 </div>
 
 <div class="container">
-    
-    <!-- ================= TAB 1: MAIN PAGE (Deployment Lobby) ================= -->
-    <div id="pageMain" class="page active">
-        <div class="grid-3col">
+
+    <!-- ================= TAB 0: WIZARD (Landing Page) ================= -->
+    <div id="pageWizard" class="page active">
+        <div style="max-width: 500px; margin: 10vh auto; text-align: center;">
+            <div class="tibia-logo" style="font-size: 50px; margin-bottom: 30px; justify-content:center;">TIBIA HUB</div>
             
-            <!-- LEFT: Quick Load -->
-            <div class="panel">
-                <h3>Quick Load</h3>
-                <p style="font-size:12px; color:#aaa; margin-top:0;">Click to load. Hover to delete `[X]`.</p>
-                <div id="quickLoadList"></div>
+            <div class="panel" id="wizStep1">
+                <h2>Welcome.</h2>
+                <p style="color:#aaa;">What is your character's name?</p>
+                <input type="text" id="wizCharInput" placeholder="Enter name to lock in your World..." style="font-size:16px; padding:12px; text-align:center;">
+                <button class="btn-primary" style="width:100%; margin-top:15px; padding:12px; font-size:16px;" onclick="wizNextStep()">Next ➔</button>
             </div>
 
-            <!-- CENTER: Stupid-Proof Search -->
+            <div class="panel" id="wizStep2" style="display:none;">
+                <h2>Build your Party</h2>
+                <p style="color:#aaa;">Do you have any friends with you? (Optional)</p>
+                <div class="ac-wrapper" style="text-align:left;">
+                    <input type="text" id="wizPartyInput" placeholder="Friend 1, Friend 2..." oninput="handleAutoComplete(this)" onkeypress="if(event.key==='Enter') wizFinish()">
+                    <div id="acListWiz" class="ac-list" style="display:none;"></div>
+                </div>
+                <div id="wizStatus" style="font-size:12px; color:#f1c40f; margin-top:10px; min-height:15px;"></div>
+                <button class="btn-success" style="width:100%; margin-top:15px; padding:15px; font-size:18px;" onclick="wizFinish()">🔎 FIND TEAM</button>
+            </div>
+            
+            <button class="nav-btn" style="margin-top:20px;" onclick="document.getElementById('btnTabMain').style.display='block'; switchTab('pageMain', document.getElementById('btnTabMain'));">Skip Tutorial</button>
+        </div>
+    </div>
+
+    <!-- ================= TAB 1: MAIN PAGE (Deployment Lobby) ================= -->
+    <div id="pageMain" class="page">
+        <div class="grid-3col">
+            
+            <!-- LEFT: VIP CRM -->
+            <div>
+                <div class="panel" style="padding:10px;">
+                    <h3 style="margin-bottom:10px; font-size:16px;">My VIP List <button class="btn-primary btn-small" style="float:right;" onclick="scanVIPs()">📡 Scan Online</button></h3>
+                    <div id="mainVipList" style="max-height: 400px; overflow-y:auto; padding-right:5px;"></div>
+                </div>
+                <div class="panel" style="padding:10px;">
+                    <h3 style="margin-bottom:10px; font-size:16px;">Quick Load Teams</h3>
+                    <div id="mainTeamsList"></div>
+                </div>
+            </div>
+
+            <!-- CENTER: Staging Board -->
             <div class="panel" style="overflow: visible;">
                 <h3>Type your Characters!</h3>
-                <p style="font-size:12px; color:#aaa; margin-top:0;">Enter your current party members to find out who is missing.</p>
+                <p style="font-size:11px; color:#aaa; margin-top:0;">Enter party members to find out who is missing.</p>
                 
-                <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="charName" placeholder="Player 1, Player 2, Player 3..." oninput="handleAutoComplete()" onkeypress="if(event.key === 'Enter') findParty()">
-                        <div id="autocompleteList" class="autocomplete-items" style="display:none;"></div>
+                <div style="display:flex; gap:5px; margin-bottom: 10px;">
+                    <div class="ac-wrapper">
+                        <input type="text" id="mainSearchInput" placeholder="Player 1, Player 2..." oninput="handleAutoComplete(this)" onkeypress="if(event.key === 'Enter') runSearch()">
+                        <div id="acListMain" class="ac-list" style="display:none;"></div>
                     </div>
-                    <button class="btn-primary" onclick="findParty()">Search</button>
+                    <button class="btn-primary" onclick="runSearch()">Search</button>
                 </div>
-                <div id="status" style="text-align:center; color:#aaa; margin-bottom: 15px; font-size:13px;"></div>
-                <div id="results"></div>
+                <div id="searchError" style="color:#ed4245; font-weight:bold; font-size:12px; margin-bottom:10px;"></div>
+                
+                <div id="searchResultsArea"></div>
             </div>
 
             <!-- RIGHT: Utility Belt -->
             <div>
-                <!-- Translator -->
                 <div class="panel">
                     <h3>Quick Translator</h3>
                     <div class="trans-row">
-                        <select id="transFrom" style="flex:1;">
-                            <option value="auto">Auto-Detect</option>
-                            <option value="pl">Polish</option>
-                            <option value="pt">Portuguese</option>
-                            <option value="es">Spanish</option>
-                            <option value="en">English</option>
-                        </select>
+                        <select id="transFrom" style="flex:1; padding:5px;"><option value="auto">Auto</option><option value="pl">PL</option><option value="pt">PT</option><option value="es">ES</option><option value="en">EN</option></select>
                         <div class="btn-swap" onclick="swapTranslator()">⇄</div>
-                        <select id="transTo" style="flex:1;" onchange="translateText()">
-                            <option value="en">English</option>
-                            <option value="pl">Polish</option>
-                            <option value="pt">Portuguese</option>
-                            <option value="es">Spanish</option>
-                        </select>
+                        <select id="transTo" style="flex:1; padding:5px;"><option value="en">EN</option><option value="pl">PL</option><option value="pt">PT</option><option value="es">ES</option></select>
                     </div>
-                    <textarea id="transInput" placeholder="Paste chat here..." rows="2" oninput="debounceTranslate()" style="margin-bottom:5px;"></textarea>
-                    <textarea id="transOutput" placeholder="Translation..." rows="2" readonly style="background:#1e2124; margin-bottom:5px;"></textarea>
-                    <button class="btn-success" style="width:100%" onclick="copyText(document.getElementById('transOutput').value)">Copy Translation</button>
+                    <textarea id="transInput" placeholder="Paste chat..." rows="2" oninput="translateText()" style="margin-bottom:5px;"></textarea>
+                    <textarea id="transOutput" placeholder="..." rows="2" readonly style="margin-bottom:5px;"></textarea>
+                    <button class="btn-success" style="width:100%" onclick="copyText(document.getElementById('transOutput').value)">Copy</button>
                 </div>
 
-                <!-- Quick Maps -->
-                <div class="panel">
-                    <h3>Quick Maps</h3>
-                    <p style="font-size:12px; color:#aaa; margin-top:0;">Hover & click to copy to Discord.</p>
-                    <div id="quickMapsGrid" class="qmap-grid"></div>
-                </div>
-
-                <!-- Quick Splitter -->
                 <div class="panel">
                     <h3>Quick Splitter</h3>
-                    <p style="font-size:12px; color:#aaa; margin-top:0;">Fast payout, no saving.</p>
-                    <textarea id="quickSplitInput" placeholder="Paste Hunt Analyzer..." rows="2" style="margin-bottom:5px;"></textarea>
-                    <button class="btn-primary" style="width:100%" onclick="quickSplitLoot()">Calculate & Copy to Clipboard</button>
+                    <textarea id="quickSplitInput" placeholder="Paste Log..." rows="2" style="margin-bottom:5px;"></textarea>
+                    <button class="btn-primary" style="width:100%" onclick="quickSplitLoot()">Calc & Copy</button>
+                </div>
+
+                <div class="panel">
+                    <h3>Quick Maps</h3>
+                    <div id="quickMapsGrid" class="qmap-grid"></div>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- ================= TAB 2: MY TEAMS (Roster & CRM) ================= -->
+    <!-- ================= TAB 2: VIP & TEAMS ================= -->
     <div id="pageTeams" class="page">
         <div class="grid-2col">
             
+            <!-- CRM Database -->
             <div class="panel">
-                <h3>My Teams</h3>
-                <div id="savedTeamsList"></div>
+                <h3>Player Database</h3>
+                <input type="text" id="crmSearch" placeholder="Search VIPs..." oninput="renderCrmList()" style="margin-bottom:10px;">
+                <div id="crmList" style="max-height: 500px; overflow-y:auto;"></div>
             </div>
 
-            <div id="teamEditorPanel" style="display:none;">
-                <div class="panel">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px;">
-                        <h2 style="margin:0;" id="dashTeamName">Team Name</h2>
-                        <button class="btn-warning" id="btnEditTeam" onclick="toggleEditMode()">Manage Roster</button>
-                    </div>
-                    <p style="font-size:12px; color:#aaa; margin-top:0;">Click a member to view their Player Dossier.</p>
+            <!-- Team Editor -->
+            <div class="panel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 id="crmTeamTitle">Select a Team or VIP</h2>
+                    <button class="btn-warning" id="btnCrmEdit" style="display:none;" onclick="toggleCrmEdit()">Edit Dossier</button>
+                </div>
+                
+                <!-- Dossier View -->
+                <div id="crmDossierView" style="display:none; margin-top:20px; background:#111; padding:15px; border:1px solid #333;">
+                    <div style="color:var(--tibia-gold); font-size:12px; margin-bottom:15px;" id="crmVocLvl"></div>
+                    <p style="font-size:13px; margin:5px 0;"><strong style="color:#aaa; display:inline-block; width:80px;">Real Name:</strong> <span id="dvReal"></span></p>
+                    <p style="font-size:13px; margin:5px 0;"><strong style="color:#aaa; display:inline-block; width:80px;">Location:</strong> <span id="dvLoc"></span></p>
+                    <p style="font-size:13px; margin:5px 0;"><strong style="color:#aaa; display:inline-block; width:80px;">Discord:</strong> <span id="dvDisc" style="color:#448aff; cursor:pointer;" onclick="copyText(this.innerText)"></span></p>
+                    <p style="font-size:13px; margin:5px 0;"><strong style="color:#aaa; display:inline-block; width:80px;">Tags/Notes:</strong> <span id="dvNotes"></span></p>
                     
-                    <div id="dashTeamMembers"></div>
-                    
-                    <div id="addMemberBox" style="display:none; margin-top:15px; border-top:1px dashed #555; padding-top:15px; display:none; gap:10px;">
-                        <input type="text" id="newMemberInput" placeholder="Character Name" style="flex:1;">
-                        <button class="btn-primary" onclick="addMemberToActiveTeam()">+ Add Member</button>
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button class="btn-primary" onclick="window.open('https://www.tibia.com/community/?subtopic=characters&name='+formatName(document.getElementById('crmTeamTitle').innerText), '_blank')">Tibia.com</button>
+                        <button class="btn-primary" onclick="window.open('https://guildstats.eu/character?nick='+formatName(document.getElementById('crmTeamTitle').innerText), '_blank')">GuildStats</button>
                     </div>
+                </div>
+
+                <!-- Dossier Edit -->
+                <div id="crmDossierEdit" style="display:none; margin-top:20px;">
+                    <input type="text" id="deReal" placeholder="Real Name" style="margin-bottom:5px;">
+                    <input type="text" id="deLoc" placeholder="Location (e.g. BR)" style="margin-bottom:5px;">
+                    <input type="text" id="deDisc" placeholder="Discord Tag" style="margin-bottom:5px;">
+                    <textarea id="deNotes" placeholder="Tags / Known Alts / Private Notes..." rows="3" style="margin-bottom:10px;"></textarea>
+                    <button class="btn-success" onclick="saveCrmDossier()">Save Profile</button>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- ================= TAB 3: MY HUNTS (Analytics Hub) ================= -->
+    <!-- ================= TAB 3: MY HUNTS ================= -->
     <div id="pageHunts" class="page">
-        
-        <!-- Input Area (Top Down) -->
-        <div class="panel" style="background: #282b30; border: 1px solid #444;">
-            <h3>Input New Hunt</h3>
+        <!-- Input Area -->
+        <div class="panel" style="background: #111;">
+            <h3>Log a Hunt</h3>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <input type="text" id="huntSpawnInput" placeholder="Where did you hunt? (e.g. Secret Library)" list="recentSpawnsList" style="flex:1;">
-                <datalist id="recentSpawnsList"></datalist>
-                <select id="huntTeamSelect" style="width: 250px;">
-                    <option value="">Select Team...</option>
-                </select>
+                <input type="text" id="huntSpawnInput" placeholder="Respawn Name (e.g. Secret Library)" list="spawnDatalist" style="flex:1;">
+                <datalist id="spawnDatalist"></datalist>
+                <select id="huntTeamSelect" style="width:200px;"><option value="">-- Attached Team --</option></select>
+                <select id="huntWheelSelect" style="width:200px;"><option value="">-- Wheel Preset Used --</option></select>
             </div>
-            <textarea id="huntLog" placeholder="Paste your Tibia Party Hunt Analyzer log here..." rows="4"></textarea>
-            
+            <textarea id="huntLogInput" placeholder="Paste Tibia Party Hunt Analyzer log..." rows="3"></textarea>
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-primary" style="flex:1; padding: 15px; font-size:15px;" onclick="calculateLootOnly()">Calculate Split Only</button>
-                <button class="btn-success" style="flex:2; padding: 15px; font-size:15px; font-weight:900;" onclick="calculateAndSaveHunt()">Calculate & Save Hunt!</button>
+                <button class="btn-primary" onclick="calcHunt(false)" style="flex:1;">Calc Only</button>
+                <button class="btn-success" onclick="calcHunt(true)" style="flex:2;">Calculate & Save to Database</button>
             </div>
-            <div id="lootResult" style="background:#1e2124; padding:15px; border-radius:4px; margin-top:10px; font-family:monospace; display:none; font-size:14px;"></div>
+            <div id="huntCalcOutput" style="background:#222; padding:10px; margin-top:10px; display:none; font-family:monospace; font-size:13px;"></div>
         </div>
 
         <div class="grid-2col">
-            <!-- Left: Spawn Folders -->
             <div class="panel">
-                <h3>Respawn Analytics</h3>
-                <p style="font-size:12px; color:#aaa; margin-top:0;">Select a spawn to view data.</p>
-                <div id="spawnFolderList" class="folder-list"></div>
+                <h3>Respawn Folders</h3>
+                <div id="huntFolderList"></div>
             </div>
-
-            <!-- Right: Metrics Dashboard -->
-            <div class="panel" id="metricsDashboard" style="display:none;">
-                <h2 id="metricSpawnTitle" style="text-align:center; margin-bottom: 20px;">Spawn Name</h2>
-                
-                <div style="display:flex; gap:10px; margin-bottom:20px;">
-                    <div class="metric-box">Total Profit<div class="metric-val" id="metTotalProf">0</div></div>
-                    <div class="metric-box">Total Hours<div class="metric-val" id="metTotalHrs" style="color:#00bcd4;">0</div></div>
-                    <div class="metric-box">Peak Exp/Hr<div class="metric-val" id="metPeakXp" style="color:#69f0ae;">0</div></div>
-                    <div class="metric-box">Avg Profit/Hr<div class="metric-val" id="metAvgProf" style="color:#3ba55c;">0</div></div>
+            <div class="panel" id="huntDash" style="display:none;">
+                <h2 id="hdTitle" style="text-align:center;">Spawn</h2>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <div class="panel" style="flex:1; text-align:center; padding:10px; margin:0;">Total Prof<br><strong style="color:var(--tibia-gold)" id="hdTotP">0</strong></div>
+                    <div class="panel" style="flex:1; text-align:center; padding:10px; margin:0;">Peak Xp/Hr<br><strong style="color:#69f0ae" id="hdPeakX">0</strong></div>
+                    <div class="panel" style="flex:1; text-align:center; padding:10px; margin:0;">Avg Prof/Hr<br><strong style="color:#00bcd4" id="hdAvgP">0</strong></div>
                 </div>
                 
-                <h4 style="margin:0; color:#aaa; text-align:center;">Hunt History & Performance</h4>
-                <div class="chart-container" id="profitChart"></div>
-
-                <div id="huntHistoryList" style="margin-top:20px;"></div>
+                <h4 style="text-align:center; margin:0; color:#aaa;">A/B Test: Profit by Wheel Preset</h4>
+                <div id="hdChart" class="chart-container"></div>
+                
+                <div id="hdHistory" style="margin-top:20px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- ================= TAB 4: MY MAPS (Strategy Workshop) ================= -->
+    <!-- ================= TAB 4: MY MAPS ================= -->
     <div id="pageMaps" class="page">
-        
-        <!-- Creator -->
-        <div class="panel">
-            <h3>Map Creator</h3>
-            <div class="canvas-toolbar">
-                <button class="btn-primary" onclick="document.getElementById('mapUploadInput').click()">1. Upload Map</button>
-                <input type="file" id="mapUploadInput" accept="image/png, image/jpeg" style="display:none;" onchange="uploadMap(event)">
+        <div class="panel" style="background:#111;">
+            <h3>Strategy Workshop</h3>
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                <button class="btn-primary" onclick="document.getElementById('mapUp').click()">Upload Map</button>
+                <input type="file" id="mapUp" accept="image/*" style="display:none;" onchange="uploadCanvasMap(event)">
                 
-                <div style="border-left: 2px solid #555; padding-left: 10px; display:flex; gap:8px; align-items:center;">
-                    <span style="font-size:12px; color:#aaa; margin-right:5px;">2. Draw:</span>
-                    <div class="color-btn active" style="background:#ff5252;" onclick="setColor(this, '#ff5252')" title="Knight"></div>
-                    <div class="color-btn" style="background:#448aff;" onclick="setColor(this, '#448aff')" title="Druid"></div>
-                    <div class="color-btn" style="background:#69f0ae;" onclick="setColor(this, '#69f0ae')" title="Paladin"></div>
-                    <div class="color-btn" style="background:#ffd740;" onclick="setColor(this, '#ffd740')" title="Sorcerer"></div>
-                    <div class="color-btn" style="background:#e0e0e0;" onclick="setColor(this, '#e0e0e0')" title="Monk"></div>
+                <div style="border-left:1px solid #444; padding-left:10px; display:flex; gap:5px;">
+                    <div class="color-btn active" style="background:#ff5252;" onclick="setCanvasColor(this, '#ff5252')" title="EK"></div>
+                    <div class="color-btn" style="background:#448aff;" onclick="setCanvasColor(this, '#448aff')" title="ED"></div>
+                    <div class="color-btn" style="background:#69f0ae;" onclick="setCanvasColor(this, '#69f0ae')" title="RP"></div>
+                    <div class="color-btn" style="background:#ffd740;" onclick="setCanvasColor(this, '#ffd740')" title="MS"></div>
+                    <div class="color-btn" style="background:#fff;" onclick="setCanvasColor(this, '#fff')" title="Monk"></div>
                 </div>
-
-                <div style="border-left: 2px solid #555; padding-left: 10px; display:flex; gap:5px; margin-left:auto;">
-                    <button class="btn-warning" onclick="undoMap()">Undo</button>
-                    <button class="btn-danger" onclick="clearMap()">Clear</button>
-                    <button class="btn-success" onclick="saveMapToVault()">3. Save Map</button>
+                
+                <div style="margin-left:auto; display:flex; gap:5px;">
+                    <button class="btn-warning" onclick="undoCanvas()">Undo</button>
+                    <button class="btn-danger" onclick="clearCanvas()">Clear</button>
+                    <button class="btn-success" onclick="saveMapVault()">💾 Save</button>
                 </div>
             </div>
-            <div class="canvas-container">
-                <span id="canvasPlaceholder" style="color:#666; font-size:14px;">Upload an image to start planning...</span>
-                <canvas id="strategyMap"></canvas>
+            
+            <div style="border: 2px solid #333; background: #000; min-height: 400px; display:flex; justify-content:center; align-items:center; overflow:hidden;" id="cvsWrapper">
+                <span id="cvsText" style="color:#555;">Upload map to begin</span>
+                <canvas id="strCvs" style="display:none; cursor:crosshair; touch-action:none;"></canvas>
             </div>
         </div>
-
-        <!-- Vault -->
+        
         <div class="panel">
             <h3>Map Vault</h3>
-            <div id="mapVaultGrid" class="map-gallery-grid"></div>
+            <div id="mapVaultGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px;"></div>
         </div>
+    </div>
 
+    <!-- ================= TAB 5: MY WHEEL (Prototype Framework) ================= -->
+    <div id="pageWheel" class="page">
+        <div class="grid-2col" style="grid-template-columns: 1fr 300px;">
+            
+            <!-- Interactive Wheel Engine -->
+            <div class="panel" style="background:#111; display:flex; justify-content:center; align-items:center; padding:40px;">
+                <div class="wheel-container" id="wheelBox">
+                    <div class="wheel-node wheel-center"></div>
+                    <!-- Nodes generated via JS -->
+                </div>
+            </div>
+
+            <!-- Stats & Saving -->
+            <div>
+                <div class="panel">
+                    <h3>Wheel Setup</h3>
+                    <select id="wheelVoc" style="margin-bottom:10px;" onchange="initWheel()"><option value="EK">Elite Knight</option><option value="ED">Elder Druid</option><option value="RP">Royal Paladin</option><option value="MS">Master Sorcerer</option><option value="MK">Monk</option></select>
+                    <input type="number" id="wheelLvl" placeholder="Level (e.g. 500)" value="500" style="margin-bottom:10px;" oninput="updateWheelPoints()">
+                    <div style="font-size:16px; font-weight:bold; color:var(--tibia-gold); text-align:center; margin-bottom:10px;">Points: <span id="whlPts">450</span></div>
+                    
+                    <button class="btn-success" style="width:100%; margin-bottom:10px;" onclick="saveWheelPreset()">💾 Save Preset</button>
+                    <button class="btn-primary" style="width:100%;" onclick="copyText('Wheel Build: ' + document.getElementById('wheelVoc').value + ' Lvl ' + document.getElementById('wheelLvl').value)">Copy to Discord</button>
+                </div>
+                
+                <div class="panel">
+                    <h3>My Presets</h3>
+                    <div id="wheelPresetList"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
 
-<!-- ================= MODALS & TOAST ================= -->
+<!-- TOAST -->
 <div id="toast">Message</div>
 
-<!-- Add Player Modal -->
-<div class="modal-bg" id="addPlayerModal">
-    <div class="modal-content">
-        <h3 id="modalPlayerName">Recruit Player</h3>
-        <p style="font-size:13px; color:#aaa;">Add this player to an existing team or create a new one.</p>
-        <select id="modalTeamSelect" style="margin-bottom:15px;"></select>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-success" style="flex:1;" onclick="confirmAddPlayer()">Add / Create</button>
-            <button class="btn-danger" style="flex:1;" onclick="document.getElementById('addPlayerModal').style.display='none'">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- Player Dossier View -->
-<div class="modal-bg" id="viewDossierModal">
-    <div class="modal-content">
-        <h2 id="vdName" style="margin-bottom:5px;">Name</h2>
-        <div id="vdVoc" style="color:#aaa; font-size:12px; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:10px;">Lvl 100 Vocation</div>
-        
-        <div class="profile-data-row"><strong>Real Name:</strong> <span id="vdReal">Unknown</span></div>
-        <div class="profile-data-row"><strong>Location:</strong> <span id="vdLoc">Unknown</span></div>
-        <div class="profile-data-row"><strong>Discord:</strong> <span id="vdDisc" style="color:#7289da; font-weight:bold;">None</span> 
-            <button class="btn-primary btn-small" id="vdCopyDisc" style="display:none;" onclick="copyText(document.getElementById('vdDisc').innerText)">Copy</button></div>
-        <div class="profile-data-row"><strong>Known Alts:</strong> <span id="vdAlts">None</span></div>
-        
-        <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="document.getElementById('viewDossierModal').style.display='none'">Close</button>
-    </div>
-</div>
-
-<!-- Player Dossier Edit -->
-<div class="modal-bg" id="editDossierModal">
-    <div class="modal-content">
-        <h3>Edit Player Profile</h3>
-        <input type="hidden" id="edCharName">
-        <label style="font-size:12px; color:#aaa;">Real Name:</label>
-        <input type="text" id="edReal" placeholder="e.g. John">
-        <label style="font-size:12px; color:#aaa;">Location:</label>
-        <input type="text" id="edLoc" placeholder="e.g. Brazil">
-        <label style="font-size:12px; color:#aaa;">Discord:</label>
-        <input type="text" id="edDisc" placeholder="e.g. user#1234">
-        <label style="font-size:12px; color:#aaa;">Known Alts (comma separated):</label>
-        <input type="text" id="edAlts" placeholder="e.g. Bubble, Cachero">
-        
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn-success" style="flex:1;" onclick="saveDossier()">Save Profile</button>
-            <button class="btn-danger" style="flex:1;" onclick="document.getElementById('editDossierModal').style.display='none'">Cancel</button>
-        </div>
-    </div>
-</div>
-
+<!-- GLOBALS & SCRIPTS -->
 <script>
-    /* =========================================
-       GLOBAL VARIABLES & INITIALIZATION
-    ========================================= */
-    const MSG_COPY = "Hello, want to hunt? / Hola, ¿quieres cazar? / Oi, quer caçar? / Cześć, szukasz TH?";
+    /* =========================================================
+       CORE DATA & INITIALIZATION
+    ========================================================= */
+    const MSG_STRINGS = {
+        hunt: "Hello, want to hunt? / Hola, ¿quieres cazar? / Oi, quer caçar? / Cześć, szukasz TH?",
+        boss: "Hello, want to do bosses? / Hola, ¿quieres hacer bosses? / Oi, quer ir bosses? / Cześć, idziesz na bossy?",
+        bounty: "Hello, want to do tasks/bounties? / Hola, ¿quieres hacer bounties? / Oi, quer fazer task? / Cześć, robisz taski?",
+        quest: "Hello, want to do a quest? / Hola, ¿quieres hacer quest? / Oi, quer fazer quest? / Cześć, robisz questy?"
+    };
     const CORE_VOCS = ["Knight", "Paladin", "Sorcerer", "Druid", "Monk"]; 
     
-    let savedTeams = JSON.parse(localStorage.getItem("tibiaTeams")) || [];
-    let savedMaps = JSON.parse(localStorage.getItem("tibiaMaps")) || [];
-    let savedHunts = JSON.parse(localStorage.getItem("tibiaHunts")) || []; 
+    // DB
+    let dbTeams = JSON.parse(localStorage.getItem("th_teams")) || [];
+    let dbVips = JSON.parse(localStorage.getItem("th_vips")) || [];
+    let dbHunts = JSON.parse(localStorage.getItem("th_hunts")) || [];
+    let dbMaps = JSON.parse(localStorage.getItem("th_maps")) || [];
+    let dbWheels = JSON.parse(localStorage.getItem("th_wheels")) || [];
 
-    let activeTeamId = null; 
-    let activeSpawnFolder = null;
-    let isEditMode = false;
-    let tempRecruit = null;
-    
-    // Auto-complete memory
-    let currentWorldOnlinePlayers = []; 
-    let lastFetchedCharForWorld = "";
-    let personalRolodex = new Set(); 
+    // State
+    let currentUserWorld = ""; 
+    let liveOnlinePlayers = [];
+    let acTargetInput = null;
 
-    window.onload = async () => { 
-        buildRolodex();
-        renderQuickLoad(); renderQuickMaps();
-        renderSavedTeams(); renderMapVault(); 
-        populateHuntDropdowns(); renderSpawnFolders();
+    function saveDB() {
+        localStorage.setItem("th_teams", JSON.stringify(dbTeams));
+        localStorage.setItem("th_vips", JSON.stringify(dbVips));
+        localStorage.setItem("th_hunts", JSON.stringify(dbHunts));
+        localStorage.setItem("th_maps", JSON.stringify(dbMaps));
+        localStorage.setItem("th_wheels", JSON.stringify(dbWheels));
+        buildVipRolodex();
     }
 
-    function showToast(msg, isErr = false) {
-        const toast = document.getElementById("toast");
-        toast.innerText = msg; toast.style.backgroundColor = isErr ? "#ed4245" : "#3ba55c";
-        toast.className = "show"; setTimeout(() => toast.classList.remove("show"), 3000);
+    // Rolodex deduplication
+    function buildVipRolodex() {
+        let map = new Map();
+        dbTeams.forEach(t => t.members.forEach(m => map.set(m.name, m)));
+        dbVips.forEach(m => map.set(m.name, m));
+        dbVips = Array.from(map.values());
     }
-    function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast("Copied!")).catch(() => showToast("Copy failed", true)); }
 
-    function switchTab(pageId, btn) {
+    window.onload = () => { 
+        buildVipRolodex();
+        renderQuickLoad(); renderVipPanel(); renderMaps(); renderHunts(); renderWheelPresets();
+    };
+
+    /* Utility */
+    function showToast(msg, isErr=false) {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.style.background = isErr ? "#c9302c" : "#2e7d32";
+        t.className = "show"; setTimeout(() => t.classList.remove("show"), 3000);
+    }
+    function copyText(txt) { navigator.clipboard.writeText(txt).then(()=>showToast("Copied!")).catch(()=>showToast("Failed to copy", true)); }
+    function formatName(n) { return encodeURIComponent(n.replace(/ /g, '+')); }
+    function cleanInput(str) { return str.split(',').map(s=>s.trim()).filter(Boolean); }
+    function getVocBase(v) {
+        if(!v) return "None";
+        if(v.includes("Knight")) return "Knight"; if(v.includes("Paladin")) return "Paladin";
+        if(v.includes("Sorcerer")) return "Sorcerer"; if(v.includes("Druid")) return "Druid";
+        if(v.includes("Monk")) return "Monk"; return "None";
+    }
+
+    function switchTab(id, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active'); btn.classList.add('active');
+        document.getElementById(id).classList.add('active'); if(btn) btn.classList.add('active');
         
-        if(pageId === 'pageMain') { renderQuickLoad(); renderQuickMaps(); buildRolodex(); }
-        if(pageId === 'pageTeams') { renderSavedTeams(); }
-        if(pageId === 'pageHunts') { populateHuntDropdowns(); renderSpawnFolders(); }
-        if(pageId === 'pageMaps') { renderMapVault(); }
+        if(id==='pageMain') { renderQuickLoad(); renderVipPanel(); renderQuickMaps(); }
+        if(id==='pageTeams') { renderCrmList(); }
+        if(id==='pageHunts') { renderHunts(); }
+        if(id==='pageMaps') { renderMaps(); }
+        if(id==='pageWheel') { initWheel(); renderWheelPresets(); }
     }
 
-    function formatName(name) { return encodeURIComponent(name.replace(/ /g, '+')); }
-    function getBaseVoc(voc) {
-        if (!voc) return "None";
-        if (voc.includes("Knight")) return "Knight";
-        if (voc.includes("Paladin")) return "Paladin";
-        if (voc.includes("Sorcerer")) return "Sorcerer";
-        if (voc.includes("Druid")) return "Druid";
-        if (voc.includes("Monk")) return "Monk"; 
-        return "None";
+    /* =========================================================
+       TAB 0: WIZARD
+    ========================================================= */
+    async function wizNextStep() {
+        const name = document.getElementById("wizCharInput").value.trim();
+        if(!name) return;
+        const btn = event.target; btn.innerText = "Connecting..."; btn.disabled = true;
+        try {
+            const data = await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`).then(r=>r.json());
+            const char = data.character?.character;
+            if(!char || !char.world) { showToast("Character not found", true); btn.innerText="Next ➔"; btn.disabled=false; return; }
+            currentUserWorld = char.world;
+            // Background load world
+            fetch(`https://api.tibiadata.com/v4/world/${currentUserWorld}`).then(r=>r.json()).then(d=>{
+                if(d.world?.online_players) liveOnlinePlayers = d.world.online_players.map(p=>p.name);
+            }).catch(e=>{});
+            
+            document.getElementById("wizPartyInput").value = name + ", ";
+            document.getElementById("wizStep1").style.display = "none";
+            document.getElementById("wizStep2").style.display = "block";
+            document.getElementById("btnTabMain").style.display = "block";
+        } catch(e) { showToast("API Error", true); btn.innerText="Next ➔"; btn.disabled=false; }
     }
 
-    function syncProfile(name, profile) {
-        savedTeams.forEach(t => {
-            t.members.forEach(m => { if(m.name === name) m.profile = profile; });
-        });
-        localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
+    function wizFinish() {
+        document.getElementById("mainSearchInput").value = document.getElementById("wizPartyInput").value;
+        switchTab('pageMain', document.getElementById('btnTabMain'));
+        runSearch();
     }
 
-    /* =========================================
-       AUTO-COMPLETE & SMART WORLD LOGIC
-    ========================================= */
-    function buildRolodex() {
-        personalRolodex.clear();
-        savedTeams.forEach(t => t.members.forEach(m => personalRolodex.add(m.name)));
-    }
-
-    function handleAutoComplete() {
-        const input = document.getElementById("charName");
-        const val = input.value;
-        const listDiv = document.getElementById("autocompleteList");
-        listDiv.innerHTML = "";
+    /* =========================================================
+       AUTO-COMPLETE & SMART COMMAS
+    ========================================================= */
+    function handleAutoComplete(inpEl) {
+        acTargetInput = inpEl;
+        const val = inpEl.value;
+        const listDiv = inpEl.nextElementSibling; listDiv.innerHTML = "";
         
         const parts = val.split(',');
+        const search = parts[parts.length - 1].trim().toLowerCase();
         
-        // --- SMART BACKGROUND WORLD FETCHER ---
-        // If there's more than 1 part (a comma was typed), check the first name to load its world's online list silently.
-        if (parts.length > 1) {
-            const firstChar = parts[0].trim();
-            if (firstChar && firstChar.toLowerCase() !== lastFetchedCharForWorld.toLowerCase()) {
-                lastFetchedCharForWorld = firstChar;
-                fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(firstChar)}`)
-                    .then(r => r.json())
-                    .then(d => {
-                        const w = d.character?.character?.world;
-                        if(w) return fetch(`https://api.tibiadata.com/v4/world/${w}`);
-                    })
-                    .then(r => r ? r.json() : null)
-                    .then(d => {
-                        if(d && d.world && d.world.online_players) {
-                            currentWorldOnlinePlayers = d.world.online_players.map(p => p.name) || [];
-                            handleAutoComplete(); // Re-trigger UI if they are still typing
-                        }
-                    }).catch(e => {});
+        // Auto-World background fetch logic (if not set by wizard)
+        if(parts.length > 1 && !currentUserWorld) {
+            const first = parts[0].trim();
+            if(first) {
+                fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(first)}`).then(r=>r.json()).then(d=>{
+                    if(d.character?.character?.world) {
+                        currentUserWorld = d.character.character.world;
+                        fetch(`https://api.tibiadata.com/v4/world/${currentUserWorld}`).then(r=>r.json()).then(d2=>{
+                            if(d2.world?.online_players) liveOnlinePlayers = d2.world.online_players.map(p=>p.name);
+                        });
+                    }
+                });
             }
         }
 
-        const currentSearch = parts[parts.length - 1].trim().toLowerCase();
-        if(currentSearch.length < 2) { listDiv.style.display = "none"; return; }
+        if(search.length < 2) { listDiv.style.display = "none"; return; }
 
-        let suggestions = [];
-        
-        // 1. Personal Rolodex
-        personalRolodex.forEach(name => {
-            if(name.toLowerCase().startsWith(currentSearch)) suggestions.push({ name, source: "Saved Roster" });
-        });
+        let suggs = [];
+        dbVips.forEach(v => { if(v.name.toLowerCase().startsWith(search)) suggs.push({name: v.name, src: "VIP"}); });
+        liveOnlinePlayers.forEach(p => { if(p.toLowerCase().startsWith(search) && !suggs.find(s=>s.name===p)) suggs.push({name: p, src: "Online"}); });
 
-        // 2. Live World List (Avoid dupes)
-        currentWorldOnlinePlayers.forEach(name => {
-            if(name.toLowerCase().startsWith(currentSearch) && !suggestions.find(s=>s.name === name)) {
-                suggestions.push({ name, source: "Online" });
-            }
-        });
+        if(suggs.length === 0) { listDiv.style.display = "none"; return; }
 
-        if(suggestions.length === 0) { listDiv.style.display = "none"; return; }
-
-        suggestions.slice(0, 10).forEach(s => {
-            const div = document.createElement("div");
-            const matchLen = currentSearch.length;
-            div.innerHTML = `<strong>${s.name.substring(0, matchLen)}</strong>${s.name.substring(matchLen)} <span class="ac-source">${s.source}</span>`;
-            div.onclick = function() {
+        suggs.slice(0, 8).forEach(s => {
+            const div = document.createElement("div"); div.className = "ac-item";
+            div.innerHTML = `<strong>${s.name.substring(0, search.length)}</strong>${s.name.substring(search.length)} <span class="ac-src">${s.src}</span>`;
+            div.onmousedown = function(e) { // mousedown prevents blur
+                e.preventDefault();
                 parts[parts.length - 1] = " " + s.name;
-                input.value = parts.join(",").trim() + ", ";
-                listDiv.style.display = "none";
-                input.focus();
+                // AUTO COMMA INJECT
+                inpEl.value = parts.join(",").trim() + ", ";
+                listDiv.style.display = "none"; inpEl.focus();
             };
             listDiv.appendChild(div);
         });
         listDiv.style.display = "block";
     }
+    document.addEventListener("click", e => { document.querySelectorAll('.ac-list').forEach(l => l.style.display="none"); });
 
-    document.addEventListener("click", function(e) { if(e.target.id !== "charName") document.getElementById("autocompleteList").style.display = "none"; });
-
-    /* =========================================
+    /* =========================================================
        TAB 1: LOBBY SEARCH & ADD
-    ========================================= */
+    ========================================================= */
     function renderQuickLoad() {
-        const div = document.getElementById("quickLoadList");
-        div.innerHTML = savedTeams.length ? "" : "<p style='color:#aaa; font-size:12px;'>No teams saved.</p>";
-        savedTeams.forEach(t => {
-            const row = document.createElement("div"); row.className = "team-list-item";
-            row.innerHTML = `
-                <div onclick="quickLoadSearch('${t.id}')" style="flex:1;"><strong>${t.name}</strong> <span style="font-size:11px; color:#aaa;">(${t.members.length}/5)</span></div>
-                <button class="btn-quick-del" onclick="quickDeleteTeam(${t.id}, event)">X</button>`;
-            div.appendChild(row);
+        const div = document.getElementById("mainTeamsList"); div.innerHTML = "";
+        dbTeams.forEach(t => {
+            const r = document.createElement("div"); r.className = "vip-item";
+            r.innerHTML = `<span onclick="loadTeamSearch(${t.id})"><strong>${t.name}</strong> (${t.members.length}/5)</span> <button class="btn-quick-del" onclick="delTeam(${t.id}, event)" style="float:right;">X</button>`;
+            div.appendChild(r);
         });
     }
-    function quickLoadSearch(id) {
-        const t = savedTeams.find(x => x.id == id); if(!t) return;
-        const names = t.members.map(m => m.name).join(", ") + ", ";
-        document.getElementById('charName').value = names;
-        findParty();
+    function loadTeamSearch(id) {
+        const t = dbTeams.find(x=>x.id===id); if(!t) return;
+        document.getElementById("mainSearchInput").value = t.members.map(m=>m.name).join(", ") + ", ";
+        runSearch();
     }
-    function quickDeleteTeam(id, e) {
-        e.stopPropagation(); const t = savedTeams.find(x => x.id === id);
-        if(confirm(`Delete team "${t.name}" and its hunt history?`)) {
-            savedTeams = savedTeams.filter(x => x.id !== id);
-            savedHunts = savedHunts.filter(h => h.teamId !== id); 
-            localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
-            localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
-            renderQuickLoad(); renderSavedTeams(); populateHuntDropdowns(); renderSpawnFolders();
-            buildRolodex();
-        }
+    function delTeam(id, e) {
+        e.stopPropagation(); if(!confirm("Delete team?")) return;
+        dbTeams = dbTeams.filter(x=>x.id!==id); saveDB(); renderQuickLoad();
     }
 
-    async function findParty() {
-        document.getElementById("autocompleteList").style.display = "none";
-        const inputStr = document.getElementById('charName').value;
-        const statusEl = document.getElementById('status'); const resEl = document.getElementById('results');
+    async function renderVipPanel() {
+        const div = document.getElementById("mainVipList"); div.innerHTML = "Loading statuses...";
+        if(dbVips.length===0) { div.innerHTML="<span style='color:#777; font-size:12px;'>No VIPs saved.</span>"; return; }
         
-        let names = inputStr.split(',').map(n => n.trim()).filter(Boolean).slice(0, 5);
-        document.getElementById('charName').value = names.join(", ");
-        if (names.length === 0) { statusEl.innerText = "Please enter character names."; return; }
+        let onlines = [], offlines = [];
+        // If we have world data, we can instantly cross-reference. Otherwise, assume offline for now to save API spam.
+        dbVips.forEach(v => {
+            if(liveOnlinePlayers.includes(v.name)) onlines.push(v);
+            else offlines.push(v);
+        });
 
-        statusEl.innerText = "Fetching characters..."; resEl.innerHTML = "";
+        const sorted = [...onlines, ...offlines]; div.innerHTML = "";
+        sorted.forEach(v => {
+            const isOn = liveOnlinePlayers.includes(v.name);
+            const r = document.createElement("div"); r.className = "vip-item";
+            r.innerHTML = `
+                <div onclick="this.parentElement.classList.toggle('open')">
+                    <span class="dot ${isOn?'online':'offline'}"></span><strong>${v.name}</strong>
+                </div>
+                <div class="vip-menu">
+                    <button class="vip-menu-btn vip-menu-add" onclick="vipAddToSearch('${v.name}')">➕ Add to Search</button>
+                    ${v.discord ? `<button class="vip-menu-btn" onclick="copyText('${v.discord}')">💬 Copy Discord: ${v.discord}</button>` : ''}
+                    <button class="vip-menu-btn" onclick="window.open('https://www.tibia.com/community/?subtopic=characters&name=${formatName(v.name)}')">🛡️ Tibia Profile</button>
+                    <button class="vip-menu-btn" onclick="window.open('https://guildstats.eu/character?nick=${formatName(v.name)}')">📊 GuildStats</button>
+                </div>`;
+            div.appendChild(r);
+        });
+    }
+    function scanVIPs() {
+        // Force refresh online players for current world
+        if(!currentUserWorld) { showToast("Do a search first to lock your world.", true); return; }
+        document.getElementById("mainVipList").innerHTML = "Scanning...";
+        fetch(`https://api.tibiadata.com/v4/world/${currentUserWorld}`).then(r=>r.json()).then(d=>{
+            liveOnlinePlayers = d.world?.online_players?.map(p=>p.name) || [];
+            renderVipPanel(); showToast("Scan Complete.");
+        }).catch(()=>showToast("Scan failed",true));
+    }
+    function vipAddToSearch(name) {
+        const inp = document.getElementById("mainSearchInput");
+        let parts = cleanInput(inp.value);
+        if(!parts.includes(name)) parts.push(name);
+        inp.value = parts.join(", ") + ", ";
+        runSearch();
+    }
+
+    async function runSearch() {
+        const inpStr = document.getElementById("mainSearchInput").value;
+        const errEl = document.getElementById("searchError"); const resEl = document.getElementById("searchResultsArea");
+        let names = cleanInput(inpStr).slice(0,5); document.getElementById("mainSearchInput").value = names.join(", ") + (names.length?", ":"");
+        if(names.length===0) return;
+
+        errEl.innerText = "Fetching..."; resEl.innerHTML = "";
         try {
-            const charData = await Promise.all(names.map(n => fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(n)}`).then(r => r.json())));
-            let members = [], missing = [], worlds = [];
-            
-            charData.forEach((d, i) => {
-                if (d.character.character && d.character.character.name) {
-                    members.push(d.character.character);
-                    if(d.character.character.world) worlds.push(d.character.character.world);
-                }
-                else missing.push(names[i]);
-            });
+            const charRes = await Promise.all(names.map(n => fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(n)}`).then(r=>r.json())));
+            let mems = [], worlds = [];
+            charRes.forEach(d => { if(d.character?.character?.name) { mems.push(d.character.character); worlds.push(d.character.character.world); }});
+            if(mems.length===0) { errEl.innerText = "Characters not found."; return; }
 
-            if (members.length === 0) { statusEl.innerHTML = `<span style="color:#ed4245;">Characters not found.</span>`; return; }
+            const uniqW = [...new Set(worlds)];
+            if(uniqW.length > 1) { errEl.innerText = `Error: Mixed worlds detected (${uniqW.join(", ")}).`; return; }
+            currentUserWorld = uniqW[0]; errEl.innerText = "";
 
-            // STRICT WORLD CHECK
-            const uniqueWorlds = [...new Set(worlds)];
-            if(uniqueWorlds.length > 1) {
-                statusEl.innerText = "";
-                resEl.innerHTML = `<div style="background:#ed4245; color:white; padding:15px; border-radius:4px; text-align:center; font-weight:bold;">Error: The entered characters are on different worlds (${uniqueWorlds.join(", ")}). Please only search for players on the same world!</div>`;
-                return;
-            }
+            let minL=Infinity, maxL=0, vocs=new Set();
+            mems.forEach(c => { minL=Math.min(minL, c.level); maxL=Math.max(maxL, c.level); vocs.add(getVocBase(c.vocation)); });
+            const rMin = Math.ceil((maxL*2)/3); const rMax = Math.floor((minL*3)/2);
+            if(rMin>rMax) { errEl.innerText = `Cannot share EXP! Lowest: ${minL} | Highest: ${maxL}`; return; }
 
-            const world = uniqueWorlds[0];
-            let minLvl = Infinity, maxLvl = 0; let vocs = new Set(), pNames = [];
-            members.forEach(c => { minLvl = Math.min(minLvl, c.level); maxLvl = Math.max(maxLvl, c.level); vocs.add(getBaseVoc(c.vocation)); pNames.push(c.name); });
+            let misVocs = CORE_VOCS.filter(v => !vocs.has(v)); if(misVocs.length===0) misVocs = CORE_VOCS;
 
-            const reqMin = Math.ceil((maxLvl * 2) / 3); const reqMax = Math.floor((minLvl * 3) / 2);
-            if (reqMin > reqMax) { resEl.innerHTML = `<div style="background:#ed4245; color:white; padding:10px; border-radius:4px; text-align:center;">Cannot share EXP! Lowest: ${minLvl} | Highest: ${maxLvl}</div>`; return; }
+            const wData = await fetch(`https://api.tibiadata.com/v4/world/${currentUserWorld}`).then(r=>r.json());
+            liveOnlinePlayers = wData.world?.online_players?.map(p=>p.name) || [];
+            renderVipPanel(); // Update green dots silently
 
-            let missingVocs = CORE_VOCS.filter(v => !vocs.has(v)); if (missingVocs.length === 0) missingVocs = CORE_VOCS; 
-
-            statusEl.innerText = `Fetching online on ${world}...`;
-            const worldData = await fetch(`https://api.tibiadata.com/v4/world/${world}`).then(r => r.json());
-            const matches = {}; missingVocs.forEach(v => matches[v] = []);
-            
-            (worldData.world.online_players || []).forEach(p => {
-                if (!pNames.includes(p.name) && p.level >= reqMin && p.level <= reqMax) {
-                    const v = getBaseVoc(p.vocation); if (missingVocs.includes(v)) matches[v].push(p);
+            const matches = {}; misVocs.forEach(v=>matches[v]=[]);
+            (wData.world?.online_players||[]).forEach(p=>{
+                if(!names.includes(p.name) && p.level>=rMin && p.level<=rMax) {
+                    const v = getVocBase(p.vocation); if(misVocs.includes(v)) matches[v].push(p);
                 }
             });
 
-            window.tempTeamObj = { world: world, members: members.map(m=>({name:m.name, level:m.level, vocation:getBaseVoc(m.vocation), profile:{}})) };
+            // UI Render
+            let html = `<div class="panel" style="border-color:var(--tibia-gold); padding:10px;">
+                <button class="btn-success" style="float:right;" onclick="saveSearchAsTeam()">💾 Save Team</button>
+                <h4 style="margin:0;">Active Search Party (${mems.length}/5)</h4>
+                <div style="font-size:11px; color:#aaa; margin-bottom:10px;">World: ${currentUserWorld} | Share: ${rMin} - ${rMax}</div>`;
             
-            statusEl.innerText = "";
-            let html = `<div class="panel" style="margin-bottom:15px; border-top:none; border-left:3px solid #f1c40f; position:relative; padding:10px;">
-                <strong>Active Search Party (${members.length}/5):</strong><br>`;
-            members.forEach(m => { html += `<div class="member-badge" style="cursor:default; padding:4px 8px; font-size:12px;">${m.name} (${m.level} ${getBaseVoc(m.vocation)})</div>`; });
-            html += `<div style="font-size:11px; margin-top:5px; color:#aaa;">World: ${world} | Share: ${reqMin} - ${reqMax}</div></div>`;
+            mems.forEach(m => { html += `<span class="badge">${m.name} (${m.level} ${getVocBase(m.vocation)})</span>`; });
+            html += `</div>`;
 
-            let foundAny = false;
-            for (const voc of missingVocs) {
-                if (matches[voc].length > 0) {
-                    foundAny = true; matches[voc].sort((a, b) => b.level - a.level);
-                    html += `<div style="margin-bottom:15px;"><h3 style="font-size:14px; margin-bottom:5px;">Needed: ${voc}s (${matches[voc].length})</h3>`;
+            misVocs.forEach(voc => {
+                if(matches[voc].length>0) {
+                    matches[voc].sort((a,b)=>b.level-a.level);
+                    html += `<h4>Needed: ${voc}s (${matches[voc].length})</h4>`;
                     matches[voc].forEach(p => {
-                        html += `<div class="player-row"><div><strong>${p.name}</strong> - Lvl ${p.level}</div>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn-success btn-small" onclick="copyText('${p.name}')">Name</button>
-                                <button class="btn-warning btn-small" onclick="copyText('${MSG_COPY}')">Msg</button>
-                                <button class="btn-primary btn-small" onclick="openAddPlayerModal('${p.name}', ${p.level}, '${voc}')">+ Add</button>
-                            </div></div>`;
+                        html += `
+                        <div class="search-row" id="srow-${p.name.replace(/[^a-zA-Z]/g,'')}">
+                            <div><strong>${p.name}</strong> - Lvl ${p.level}</div>
+                            <div style="display:flex; gap:5px; align-items:center;">
+                                <button class="btn-primary" onclick="inspectChar('${p.name}', this)">🔍</button>
+                                <button class="btn-success" onclick="copyText('${p.name}')">Name</button>
+                                <div class="invite-wrapper">
+                                    <button class="btn-warning">💬 Invite ▼</button>
+                                    <div class="invite-menu">
+                                        <button class="btn-primary" style="background:#4a6fa5;" onclick="copyText(MSG_STRINGS.hunt)">🏹 Hunt</button>
+                                        <button class="btn-primary" style="background:#8b0000;" onclick="copyText(MSG_STRINGS.boss)">👹 Boss</button>
+                                        <button class="btn-primary" style="background:#d4af37; color:black;" onclick="copyText(MSG_STRINGS.bounty)">💀 Bounty</button>
+                                        <button class="btn-primary" style="background:#00bcd4;" onclick="copyText(MSG_STRINGS.quest)">📜 Quest</button>
+                                    </div>
+                                </div>
+                                <button class="btn-success" style="background:var(--btn-blue);" onclick="vipAddToSearch('${p.name}')">➕ Add</button>
+                            </div>
+                        </div>`;
                     });
-                    html += `</div>`;
                 }
-            }
-            if (!foundAny) html += `<p style="text-align:center; color:#aaa;">No missing vocations online.</p>`;
+            });
             resEl.innerHTML = html;
-        } catch (e) { statusEl.innerText = "Error fetching API."; }
+            // Global save reference
+            window.activeSearchMems = mems.map(m=>({name:m.name, level:m.level, vocation:getVocBase(m.vocation)}));
+        } catch(e) { errEl.innerText = "API Error."; }
     }
 
-    function openAddPlayerModal(name, level, voc) {
-        tempRecruit = { name, level, vocation: voc, profile: {} };
-        document.getElementById("modalPlayerName").innerText = `Recruit ${name}`;
-        
-        let opts = `<option value="NEW">-- Create New Team --</option>`;
-        opts += savedTeams.map(t => `<option value="${t.id}">${t.name} (${t.members.length}/5)</option>`).join("");
-        document.getElementById("modalTeamSelect").innerHTML = opts;
-        
-        document.getElementById("addPlayerModal").style.display = "flex";
+    async function inspectChar(name, btn) {
+        btn.innerText = "..."; btn.disabled = true;
+        try {
+            const d = await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`).then(r=>r.json());
+            const c = d.character?.character;
+            if(c) {
+                const row = document.getElementById("srow-"+name.replace(/[^a-zA-Z]/g,''));
+                const inf = document.createElement("div"); inf.style.width = "100%"; inf.style.fontSize="11px"; inf.style.color="#aaa"; inf.style.paddingTop="5px";
+                inf.innerHTML = `🛡️ Guild: <strong style="color:white;">${c.guild?.name || 'None'}</strong> | 🏠 Res: ${c.residence}`;
+                row.style.flexWrap = "wrap"; row.appendChild(inf);
+                btn.remove(); // Only inspect once
+            }
+        } catch(e){ btn.innerText="🔍"; btn.disabled=false; }
     }
 
-    function confirmAddPlayer() {
-        const val = document.getElementById("modalTeamSelect").value;
-        if(val === "NEW") {
-            const teamName = prompt("Name your new team:");
-            if(!teamName) return;
-            const newTeam = { id: Date.now(), name: teamName, world: window.tempTeamObj.world, members: [...window.tempTeamObj.members, tempRecruit] };
-            newTeam.members = newTeam.members.filter((v,i,a)=>a.findIndex(v2=>(v2.name===v.name))===i);
-            savedTeams.push(newTeam); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
-            showToast(`Team '${teamName}' created!`);
-        } else {
-            const t = savedTeams.find(x => x.id === parseInt(val)); if(!t) return;
-            if(t.members.length >= 5) { showToast("Team is full!", true); return; }
-            if(t.members.find(m => m.name === tempRecruit.name)) { showToast("Already in team.", true); return; }
-            t.members.push(tempRecruit); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
-            showToast(`Added to ${t.name}!`); 
-        }
-        
-        document.getElementById("addPlayerModal").style.display = "none";
-        renderQuickLoad(); renderSavedTeams(); buildRolodex(); populateHuntDropdowns();
+    function saveSearchAsTeam() {
+        if(!window.activeSearchMems || window.activeSearchMems.length===0) return;
+        const n = prompt("Name this team:"); if(!n) return;
+        dbTeams.push({id: Date.now(), name: n, members: window.activeSearchMems});
+        saveDB(); renderQuickLoad(); showToast("Team Saved!");
     }
 
-    /* --- TRANSLATOR --- */
-    let transTimeout;
-    function debounceTranslate() { clearTimeout(transTimeout); transTimeout = setTimeout(translateText, 500); }
+    /* --- RIGHT COLUMN TOOLS --- */
     function swapTranslator() {
-        let from = document.getElementById("transFrom").value; let to = document.getElementById("transTo").value;
-        let outText = document.getElementById("transOutput").value;
-        if(from === "auto") from = "en"; 
-        document.getElementById("transFrom").value = to; document.getElementById("transTo").value = from;
-        document.getElementById("transInput").value = outText; document.getElementById("transOutput").value = "";
-        translateText();
+        let f = document.getElementById("transFrom").value; let t = document.getElementById("transTo").value;
+        let out = document.getElementById("transOutput").value;
+        if(f==="auto") f="en"; document.getElementById("transFrom").value=t; document.getElementById("transTo").value=f;
+        document.getElementById("transInput").value=out; document.getElementById("transOutput").value=""; translateText();
     }
     async function translateText() {
         const txt = document.getElementById("transInput").value.trim(); const out = document.getElementById("transOutput");
-        if(!txt) { out.value = ""; return; }
+        if(!txt) { out.value=""; return; }
         try {
             const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${document.getElementById("transFrom").value}&tl=${document.getElementById("transTo").value}&dt=t&q=${encodeURIComponent(txt)}`);
-            const data = await res.json(); out.value = data[0].map(x => x[0]).join("");
-        } catch(e) { out.value = "Error translating."; }
+            const data = await res.json(); out.value = data[0].map(x=>x[0]).join("");
+        } catch(e) {}
     }
 
-    /* --- QUICK MAPS --- */
+    function quickSplitLoot() {
+        const log = document.getElementById("quickSplitInput").value; if(!log.trim()) return;
+        try {
+            const data = parseLog(log); if(data.players.length===0) return;
+            if(data.bal===0) data.bal = data.players.reduce((s,p)=>s+p.bal,0);
+            let shr = data.bal / data.players.length; let tfs = [];
+            data.players.forEach(p => p.diff = p.bal - shr);
+            data.players.filter(p=>p.diff>0).forEach(p => {
+                data.players.filter(r=>r.diff<0).forEach(r => {
+                    if(p.diff>1 && Math.abs(r.diff)>1) {
+                        let amt = Math.min(p.diff, Math.abs(r.diff)); tfs.push(`${p.name} pays ${formatNum(amt)} to ${r.name}`);
+                        p.diff -= amt; r.diff += amt;
+                    }
+                });
+            });
+            let out = `Profit: ${data.bal.toLocaleString()} | Share: ${Math.floor(shr).toLocaleString()}\n`;
+            out += tfs.length ? tfs.join("\n") : "Perfectly balanced!";
+            copyText(out); document.getElementById("quickSplitInput").value = "";
+        } catch(e) { showToast("Error parsing", true); }
+    }
+
     function renderQuickMaps() {
         const grid = document.getElementById("quickMapsGrid"); grid.innerHTML = "";
-        if(savedMaps.length === 0) { grid.innerHTML = "<span style='color:#aaa; font-size:12px;'>No maps saved.</span>"; return; }
-        savedMaps.slice(0, 4).forEach(m => { 
-            grid.innerHTML += `
-                <div class="qmap-card" onclick="copyMapData('${m.id}')">
-                    <img src="${m.image}">
-                    <div class="qmap-overlay">
-                        <span style="font-size:10px; font-weight:bold; color:#f1c40f; margin-bottom:5px; text-align:center;">${m.title}</span>
-                        <button class="btn-success btn-small">Copy to Discord</button>
-                    </div>
-                </div>`;
+        dbMaps.slice(0,4).forEach(m => {
+            grid.innerHTML += `<div class="qmap-card" onclick="copyMapData('${m.id}')"><img src="${m.img}"><div class="qmap-overlay"><span style="font-size:10px; font-weight:bold; color:var(--tibia-gold);">${m.title}</span></div></div>`;
         });
     }
 
-    /* --- QUICK SPLITTER --- */
-    function quickSplitLoot() {
-        const log = document.getElementById("quickSplitInput").value;
-        if(!log.trim()) { showToast("Paste a log first!", true); return; }
-        try {
-            const data = parseLogData(log);
-            if(data.players.length === 0) { showToast("No players found", true); return; }
-            if(data.pBal===0) data.pBal = data.players.reduce((s,p)=>s+p.bal,0);
-            let fairShare = data.pBal / data.players.length; let transfers = [];
-            data.players.forEach(p => p.diff = p.bal - fairShare);
-            data.players.filter(p => p.diff > 0).forEach(p => {
-                data.players.filter(r => r.diff < 0).forEach(r => {
-                    if (p.diff > 1 && Math.abs(r.diff) > 1) {
-                        let t = Math.min(p.diff, Math.abs(r.diff)); transfers.push(`${p.name} pays ${formatNumber(t)} to ${r.name}`);
-                        p.diff -= t; r.diff += t;
-                    }
-                });
-            });
-            let outStr = `Total Profit: ${data.pBal.toLocaleString()} | Share: ${Math.floor(fairShare).toLocaleString()}/ea\n`;
-            outStr += transfers.length ? transfers.join("\n") : "Perfectly balanced!";
-            copyText(outStr);
-            document.getElementById("quickSplitInput").value = "";
-        } catch(e) { showToast("Error parsing log", true); }
-    }
-
-
-    /* =========================================
-       TAB 2: MY TEAMS (ROSTER & CRM)
-    ========================================= */
-    function renderSavedTeams() {
-        const listDiv = document.getElementById("savedTeamsList");
-        listDiv.innerHTML = savedTeams.length ? "" : "<p style='color:#aaa; font-size:13px;'>No teams saved.</p>";
-        savedTeams.forEach(t => {
-            const div = document.createElement("div"); div.className = "team-list-item " + (t.id === activeTeamId ? "active" : "");
-            div.innerHTML = `<strong>${t.name}</strong> <span style="font-size:11px; color:#aaa;">(${t.members.length}/5)</span>`;
-            div.onclick = () => selectTeam(t.id);
-            listDiv.appendChild(div);
+    /* =========================================================
+       TAB 2: VIP & TEAMS (CRM)
+    ========================================================= */
+    let crmActiveName = null;
+    function renderCrmList() {
+        const q = document.getElementById("crmSearch").value.toLowerCase();
+        const div = document.getElementById("crmList"); div.innerHTML = "";
+        dbVips.filter(v => v.name.toLowerCase().includes(q)).forEach(v => {
+            const r = document.createElement("div"); r.className = "vip-item";
+            r.innerHTML = `<strong>${v.name}</strong> <span style="float:right; font-size:10px; color:#777;">${v.vocation}</span>`;
+            r.onclick = () => loadCrmDossier(v.name);
+            div.appendChild(r);
         });
-        if(!activeTeamId && savedTeams.length > 0) selectTeam(savedTeams[0].id);
-        else if(savedTeams.length === 0) document.getElementById("teamEditorPanel").style.display = "none";
     }
 
-    function selectTeam(id) {
-        activeTeamId = id; isEditMode = false; const t = savedTeams.find(x => x.id === id); if(!t) return;
-        document.getElementById("teamEditorPanel").style.display = "block";
-        document.getElementById("dashTeamName").innerText = `${t.name}`;
+    function loadCrmDossier(name) {
+        crmActiveName = name; const v = dbVips.find(x=>x.name===name); if(!v) return;
+        document.getElementById("crmTeamTitle").innerText = v.name;
+        document.getElementById("btnCrmEdit").style.display = "block";
+        document.getElementById("crmDossierEdit").style.display = "none";
         
-        document.getElementById("btnEditTeam").innerText = "Manage Roster"; document.getElementById("btnEditTeam").className = "btn-warning";
-        document.getElementById("addMemberBox").style.display = "none";
-        renderTeamMembers(); renderSavedTeams(); 
+        const view = document.getElementById("crmDossierView"); view.style.display = "block";
+        document.getElementById("crmVocLvl").innerText = `Lvl ${v.level} ${v.vocation}`;
+        document.getElementById("dvReal").innerText = v.real || "--";
+        document.getElementById("dvLoc").innerText = v.loc || "--";
+        document.getElementById("dvDisc").innerText = v.discord || "--";
+        document.getElementById("dvNotes").innerText = v.notes || "--";
     }
 
-    function renderTeamMembers() {
-        const t = savedTeams.find(x => x.id === activeTeamId); if(!t) return;
-        const cont = document.getElementById("dashTeamMembers"); cont.className = isEditMode ? "edit-mode" : "";
-        cont.innerHTML = "";
-        t.members.forEach((m, i) => {
-            if(!m.profile) m.profile = {}; 
-            let discStr = m.profile.discord ? `<div onclick="copyText('${m.profile.discord}')">Copy Discord: ${m.profile.discord}</div>` : "";
-            cont.innerHTML += `
-                <div class="member-badge" onclick="viewDossier('${m.name}')">
-                    ${m.name} (${m.level} ${m.vocation})
-                    <div class="hover-links" onclick="event.stopPropagation()">
-                        <a href="https://www.tibia.com/community/?subtopic=characters&name=${formatName(m.name)}" target="_blank">Tibia.com</a>
-                        <a href="https://guildstats.eu/character?nick=${formatName(m.name)}" target="_blank">GuildStats</a>
-                        ${discStr}
-                    </div>
-                    <button class="badge-edit-btn" onclick="openEditDossier('${m.name}', event)">✏️</button>
-                    <button class="badge-kick-btn" onclick="removeMember(${i}, event)">X</button>
-                </div>`;
-        });
+    function toggleCrmEdit() {
+        const view = document.getElementById("crmDossierView"); const edit = document.getElementById("crmDossierEdit");
+        const btn = document.getElementById("btnCrmEdit");
+        if(edit.style.display === "none") {
+            view.style.display = "none"; edit.style.display = "block"; btn.innerText = "Cancel"; btn.className = "btn-danger";
+            const v = dbVips.find(x=>x.name===crmActiveName);
+            document.getElementById("deReal").value = v.real||""; document.getElementById("deLoc").value = v.loc||"";
+            document.getElementById("deDisc").value = v.discord||""; document.getElementById("deNotes").value = v.notes||"";
+        } else {
+            edit.style.display = "none"; view.style.display = "block"; btn.innerText = "Edit Dossier"; btn.className = "btn-warning";
+        }
     }
 
-    function toggleEditMode() {
-        isEditMode = !isEditMode; const btn = document.getElementById("btnEditTeam");
-        if(isEditMode) { btn.innerText = "Done"; btn.className = "btn-success"; document.getElementById("addMemberBox").style.display = "flex"; }
-        else { btn.innerText = "Manage Roster"; btn.className = "btn-warning"; document.getElementById("addMemberBox").style.display = "none"; }
-        renderTeamMembers();
-    }
-    function removeMember(idx, e) { e.stopPropagation(); savedTeams.find(x=>x.id===activeTeamId).members.splice(idx, 1); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams)); renderTeamMembers(); renderSavedTeams(); buildRolodex(); }
-    
-    async function addMemberToActiveTeam() {
-        const t = savedTeams.find(x => x.id === activeTeamId); if(t.members.length >= 5) { showToast("Full!", true); return; }
-        const input = document.getElementById("newMemberInput"); const name = input.value.trim(); if(!name) return;
-        input.value = "Verifying..."; input.disabled = true;
-        try {
-            const char = (await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`).then(r=>r.json())).character.character;
-            if(!char || !char.name) { showToast("Not found", true); }
-            else if(t.members.find(m => m.name === char.name)) { showToast("Already in team.", true); }
-            else {
-                t.members.push({ name: char.name, level: char.level, vocation: getBaseVoc(char.vocation), profile: {} });
-                localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams)); showToast("Added!"); renderTeamMembers(); renderSavedTeams(); buildRolodex();
-            }
-        } catch(e) { showToast("Error", true); }
-        input.value = ""; input.disabled = false;
-    }
-
-    function viewDossier(name) {
-        if(isEditMode) return;
-        let member; savedTeams.forEach(t => t.members.forEach(m => { if(m.name === name) member = m; }));
-        if(!member) return;
-        document.getElementById("vdName").innerText = member.name;
-        document.getElementById("vdVoc").innerText = `Lvl ${member.level} ${member.vocation}`;
-        document.getElementById("vdReal").innerText = member.profile?.realName || "Unknown";
-        document.getElementById("vdLoc").innerText = member.profile?.location || "Unknown";
-        document.getElementById("vdAlts").innerText = member.profile?.alts || "None";
+    function saveCrmDossier() {
+        let v = dbVips.find(x=>x.name===crmActiveName); if(!v) return;
+        v.real = document.getElementById("deReal").value; v.loc = document.getElementById("deLoc").value;
+        v.discord = document.getElementById("deDisc").value; v.notes = document.getElementById("deNotes").value;
         
-        const discEl = document.getElementById("vdDisc"); const btnCopy = document.getElementById("vdCopyDisc");
-        if(member.profile?.discord) { discEl.innerText = member.profile.discord; btnCopy.style.display = "inline-block"; } 
-        else { discEl.innerText = "None"; btnCopy.style.display = "none"; }
-        document.getElementById("viewDossierModal").style.display = "flex";
-    }
-
-    function openEditDossier(name, e) {
-        e.stopPropagation(); let member; savedTeams.forEach(t => t.members.forEach(m => { if(m.name === name) member = m; }));
-        if(!member) return;
-        document.getElementById("edCharName").value = member.name;
-        document.getElementById("edReal").value = member.profile?.realName || "";
-        document.getElementById("edLoc").value = member.profile?.location || "";
-        document.getElementById("edDisc").value = member.profile?.discord || "";
-        document.getElementById("edAlts").value = member.profile?.alts || "";
-        document.getElementById("editDossierModal").style.display = "flex";
-    }
-
-    function saveDossier() {
-        const name = document.getElementById("edCharName").value;
-        const profile = {
-            realName: document.getElementById("edReal").value.trim(),
-            location: document.getElementById("edLoc").value.trim(),
-            discord: document.getElementById("edDisc").value.trim(),
-            alts: document.getElementById("edAlts").value.trim()
-        };
-        syncProfile(name, profile);
-        document.getElementById("editDossierModal").style.display = "none";
-        renderTeamMembers(); showToast("Profile Saved!");
+        // Sync to teams
+        dbTeams.forEach(t=>t.members.forEach(m=>{
+            if(m.name===v.name) { m.real=v.real; m.loc=v.loc; m.discord=v.discord; m.notes=v.notes; }
+        }));
+        saveDB(); toggleCrmEdit(); loadCrmDossier(crmActiveName); showToast("Dossier Saved.");
     }
 
 
-    /* =========================================
-       TAB 3: MY HUNTS (ANALYTICS HUB)
-    ========================================= */
-    function populateHuntDropdowns() {
-        const sel = document.getElementById("huntTeamSelect");
-        sel.innerHTML = `<option value="">Select Team...</option>` + savedTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
-        const dl = document.getElementById("recentSpawnsList");
-        dl.innerHTML = [...new Set(savedHunts.map(h => h.spawn))].map(s => `<option value="${s}">`).join("");
+    /* =========================================================
+       TAB 3: MY HUNTS
+    ========================================================= */
+    let pendingHunt = null; let activeFolder = null;
+    function formatNum(num) { if(num>=1000000) return (num/1000000).toFixed(1)+"kk"; if(num>=1000) return (num/1000).toFixed(0)+"k"; return num.toLocaleString(); }
+
+    function renderHunts() {
+        // Pop dropdowns
+        const tSel = document.getElementById("huntTeamSelect"); tSel.innerHTML = `<option value="">-- Attached Team --</option>` + dbTeams.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
+        const wSel = document.getElementById("huntWheelSelect"); wSel.innerHTML = `<option value="">-- Wheel Preset Used --</option>` + dbWheels.map(w=>`<option value="${w.id}">${w.name}</option>`).join("");
+        const sDl = document.getElementById("spawnDatalist"); const spns = [...new Set(dbHunts.map(h=>h.spn))];
+        sDl.innerHTML = spns.map(s=>`<option value="${s}">`).join("");
+
+        // Folders
+        const fDiv = document.getElementById("huntFolderList"); fDiv.innerHTML = "";
+        if(spns.length===0) fDiv.innerHTML="<span style='color:#777;'>No hunts saved.</span>";
+        spns.forEach(s => {
+            const item = document.createElement("div"); item.className = "folder-item " + (activeFolder===s?"active":"");
+            item.innerHTML = `📁 ${s} <span style="float:right; font-size:10px; color:#aaa;">${dbHunts.filter(h=>h.spn===s).length} logs</span>`;
+            item.onclick = () => loadHuntDash(s); fDiv.appendChild(item);
+        });
+        if(activeFolder && spns.includes(activeFolder)) loadHuntDash(activeFolder);
     }
 
-    function formatNumber(num) {
-        if(num >= 1000000) return (num/1000000).toFixed(1) + "kk";
-        if(num >= 1000) return (num/1000).toFixed(0) + "k";
-        return num.toLocaleString();
-    }
-
-    function parseLogData(log) {
-        const lines = log.split('\n').map(l => l.trim()).filter(Boolean);
-        let pLoot=0, pSupp=0, pBal=0, pDmg=0, pHeal=0, pXp=0, durationMins=60, players=[], curP=null;
+    function parseLog(log) {
+        const lines = log.split('\n').map(l=>l.trim()).filter(Boolean);
+        let loot=0, supp=0, bal=0, dmg=0, heal=0, xp=0, dur=60, players=[], cur=null;
         lines.forEach(l => {
             if(l.startsWith("Session data: From")) {
-                try {
-                    let parts = l.replace("Session data: From ", "").split(" to ");
-                    let d1 = new Date(parts[0].replace(",", "")); let d2 = new Date(parts[1].replace(",", ""));
-                    durationMins = (d2 - d1) / 60000; if(durationMins <= 0 || isNaN(durationMins)) durationMins = 60;
-                } catch(e){}
+                try { let p = l.replace("Session data: From ","").split(" to "); let d1 = new Date(p[0].replace(",","")); let d2 = new Date(p[1].replace(",","")); dur = (d2-d1)/60000; if(dur<=0||isNaN(dur)) dur=60; } catch(e){}
             }
-            else if(l.startsWith("Loot:") && !curP) pLoot = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
-            else if(l.startsWith("Supplies:") && !curP) pSupp = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
-            else if(l.startsWith("Balance:") && !curP) pBal = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
-            else if(l.startsWith("Damage:") && !curP) pDmg = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
-            else if(l.startsWith("Healing:") && !curP) pHeal = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
-            else if(l.startsWith("XP Gain:") && !curP) pXp = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("Loot:")&&!cur) loot=parseInt(l.split(":")[1].replace(/,/g,''))||0;
+            else if(l.startsWith("Supplies:")&&!cur) supp=parseInt(l.split(":")[1].replace(/,/g,''))||0;
+            else if(l.startsWith("Balance:")&&!cur) bal=parseInt(l.split(":")[1].replace(/,/g,''))||0;
+            else if(l.startsWith("Damage:")&&!cur) dmg=parseInt(l.split(":")[1].replace(/,/g,''))||0;
+            else if(l.startsWith("Healing:")&&!cur) heal=parseInt(l.split(":")[1].replace(/,/g,''))||0;
+            else if(l.startsWith("XP Gain:")&&!cur) xp=parseInt(l.split(":")[1].replace(/,/g,''))||0;
         });
-
-        for (let i = 0; i < lines.length; i++) {
-            const l = lines[i];
-            if (!l.includes(':') && lines[i+1] && lines[i+1].includes('Loot:')) {
-                if(curP) players.push(curP); curP = { name: l.replace(' (Leader)', ''), bal:0, dmg:0, heal:0 };
-            } else if (curP) {
-                let val = parseInt(l.split(":")[1]?.replace(/,/g, '')) || 0;
-                if(l.startsWith('Balance:')) curP.bal = val;
-                if(l.startsWith('Damage:')) curP.dmg = val;
-                if(l.startsWith('Healing:')) curP.heal = val;
+        for(let i=0; i<lines.length; i++){
+            if(!lines[i].includes(':') && lines[i+1] && lines[i+1].includes('Loot:')) { if(cur) players.push(cur); cur={name:lines[i].replace(' (Leader)',''), bal:0, dmg:0, heal:0}; }
+            else if(cur) {
+                let v = parseInt(lines[i].split(":")[1]?.replace(/,/g,''))||0;
+                if(lines[i].startsWith('Balance:')) cur.bal=v; if(lines[i].startsWith('Damage:')) cur.dmg=v; if(lines[i].startsWith('Healing:')) cur.heal=v;
             }
         }
-        if(curP) players.push(curP);
-        return { players, pBal, pDmg, pHeal, pXp, durationMins, pLoot, pSupp };
+        if(cur) players.push(cur);
+        return {players, bal, dmg, heal, xp, dur, loot, supp};
     }
 
-    function calculateLootOnly() {
-        const log = document.getElementById("huntLog").value; const resEl = document.getElementById("lootResult");
-        if (!log.trim()) { resEl.innerHTML = "Paste log first."; resEl.style.display="block"; return null; }
-        document.getElementById("huntSpawnInput").style.borderColor = "#444"; 
-        
+    function calcHunt(saveMode) {
+        const log = document.getElementById("huntLogInput").value; const res = document.getElementById("huntCalcOutput");
+        if(!log.trim()) return;
         try {
-            const data = parseLogData(log);
-            if(data.players.length === 0) { resEl.innerHTML = "No players found in log."; resEl.style.display="block"; return null; }
-            if(data.pBal===0) data.pBal = data.players.reduce((s,p)=>s+p.bal,0);
-            if(data.pDmg===0) data.pDmg = data.players.reduce((s,p)=>s+p.dmg,0);
-            if(data.pHeal===0) data.pHeal = data.players.reduce((s,p)=>s+p.heal,0);
-
-            let fairShare = data.pBal / data.players.length; let transfers = [];
-            data.players.forEach(p => p.diff = p.bal - fairShare);
-            data.players.filter(p => p.diff > 0).forEach(p => {
-                data.players.filter(r => r.diff < 0).forEach(r => {
-                    if (p.diff > 1 && Math.abs(r.diff) > 1) {
-                        let t = Math.min(p.diff, Math.abs(r.diff)); transfers.push(`${p.name} pays ${formatNumber(t)} to ${r.name}`);
-                        p.diff -= t; r.diff += t;
-                    }
+            const d = parseLog(log); if(d.players.length===0) return;
+            if(d.bal===0) d.bal = d.players.reduce((s,p)=>s+p.bal,0);
+            let shr = d.bal/d.players.length; let tfs = [];
+            d.players.forEach(p=>p.diff = p.bal-shr);
+            d.players.filter(p=>p.diff>0).forEach(p=>{
+                d.players.filter(r=>r.diff<0).forEach(r=>{
+                    if(p.diff>1 && Math.abs(r.diff)>1) { let amt = Math.min(p.diff, Math.abs(r.diff)); tfs.push(`${p.name} pays ${formatNum(amt)} to ${r.name}`); p.diff-=amt; r.diff+=amt; }
                 });
             });
 
-            resEl.innerHTML = `<strong>Balance:</strong> ${data.pBal.toLocaleString()} | <strong>Share:</strong> ${Math.floor(fairShare).toLocaleString()}/ea<br>` + (transfers.length ? `<br><strong style='color:#f1c40f;'>Transfers:</strong><br>` + transfers.join("<br>") : "<br><strong style='color:#3ba55c;'>Perfectly balanced!</strong>");
-            resEl.style.display = "block";
+            res.innerHTML = `<strong>Balance:</strong> ${d.bal.toLocaleString()} | <strong>Share:</strong> ${Math.floor(shr).toLocaleString()}/ea<br>` + (tfs.length?`<br><strong style="color:var(--tibia-gold)">Transfers:</strong><br>`+tfs.join("<br>"):"<br><strong style='color:#5cb85c'>Balanced!</strong>");
+            res.style.display="block";
 
-            let xpHr = (data.pXp / data.durationMins) * 60;
-            let tt = `💰 Loot: ${formatNumber(data.pLoot)} | 🛒 Supp: ${formatNumber(data.pSupp)} | ⚖️ Bal: ${formatNumber(data.pBal)}\n`;
-            tt += `⚔️ Team Dmg: ${formatNumber(data.pDmg)} | 💖 Team Heal: ${formatNumber(data.pHeal)}\n\n📊 Breakdown:\n`;
-            data.players.forEach(p => tt += `• ${p.name}: ${formatNumber(p.dmg)} Dmg / ${formatNumber(p.heal)} Heal\n`);
-            tt += `\n💸 Transfers:\n` + (transfers.length ? transfers.join("\n") : "None");
-
-            return { date: new Date().toLocaleDateString(), durationMins: data.durationMins, profit: data.pBal, xp: data.pXp, xpHr, tooltipText: tt };
-        } catch(e) { resEl.innerHTML = "Error parsing log."; resEl.style.display="block"; return null; }
-    }
-
-    function calculateAndSaveHunt() {
-        const spawnInput = document.getElementById("huntSpawnInput");
-        const spawn = spawnInput.value.trim();
-        const tId = document.getElementById("huntTeamSelect").value;
-        
-        spawnInput.style.borderColor = "#444";
-        if(!spawn) { spawnInput.style.borderColor = "#ed4245"; showToast("Enter a Respawn Name!", true); return; }
-        if(!tId) { showToast("Select a Team!", true); return; }
-
-        const huntData = calculateLootOnly();
-        if(huntData) {
-            huntData.id = Date.now(); huntData.spawn = spawn; huntData.teamId = parseInt(tId);
-            savedHunts.unshift(huntData); localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
-            showToast("Hunt Saved & Calculated!");
-            spawnInput.value = ""; document.getElementById("huntLog").value = "";
-            populateHuntDropdowns(); renderSpawnFolders();
-            document.querySelectorAll('.folder-item').forEach(x=>x.classList.remove('active'));
-            loadMetrics(spawn);
-        }
-    }
-
-    function renderSpawnFolders() {
-        const div = document.getElementById("spawnFolderList"); div.innerHTML = "";
-        const spawns = [...new Set(savedHunts.map(h => h.spawn))];
-        if(spawns.length === 0) { div.innerHTML = "<span style='color:#aaa; font-size:12px;'>No hunts saved yet.</span>"; document.getElementById("metricsDashboard").style.display="none"; return; }
-        
-        spawns.forEach(s => {
-            const hCount = savedHunts.filter(h => h.spawn === s).length;
-            const item = document.createElement("div"); 
-            item.className = "folder-item " + (activeSpawnFolder === s ? "active" : "");
-            item.innerHTML = `📁 ${s} <span style="float:right; color:#aaa; font-size:12px;">${hCount} hunts</span>`;
-            item.onclick = () => { document.querySelectorAll('.folder-item').forEach(x=>x.classList.remove('active')); item.classList.add('active'); loadMetrics(s); };
-            div.appendChild(item);
-        });
-        if(activeSpawnFolder && spawns.includes(activeSpawnFolder)) loadMetrics(activeSpawnFolder);
-    }
-
-    function loadMetrics(spawnName) {
-        activeSpawnFolder = spawnName;
-        const hunts = savedHunts.filter(h => h.spawn === spawnName);
-        document.getElementById("metricsDashboard").style.display = "block";
-        document.getElementById("metricSpawnTitle").innerText = spawnName;
-
-        let totProf = 0, totMins = 0, peakXp = 0;
-        hunts.forEach(h => { totProf += h.profit; totMins += h.durationMins; peakXp = Math.max(peakXp, h.xpHr || 0); });
-        
-        document.getElementById("metTotalProf").innerText = formatNumber(totProf);
-        document.getElementById("metTotalHrs").innerText = (totMins / 60).toFixed(1) + "h";
-        document.getElementById("metPeakXp").innerText = formatNumber(peakXp);
-        document.getElementById("metAvgProf").innerText = formatNumber(totProf / (totMins / 60 || 1));
-
-        const chart = document.getElementById("profitChart"); chart.innerHTML = "";
-        const recent = hunts.slice(0, 10).reverse(); 
-        const maxProf = Math.max(...recent.map(h => Math.abs(h.profit)), 1); 
-
-        recent.forEach(h => {
-            const bar = document.createElement("div"); bar.className = "chart-bar";
-            let hgt = (Math.abs(h.profit) / maxProf) * 100; bar.style.height = hgt + "%";
-            if(h.profit < 0) bar.style.backgroundColor = "#ed4245";
+            let tt = `💰 Loot: ${formatNum(d.loot)} | 🛒 Supp: ${formatNum(d.supp)} | ⚖️ Bal: ${formatNum(d.bal)}\n⚔️ Dmg: ${formatNum(d.dmg)} | 💖 Heal: ${formatNum(d.heal)}\n`;
+            d.players.forEach(p=>tt+=`• ${p.name}: ${formatNum(p.dmg)} Dmg / ${formatNum(p.heal)} Heal\n`);
             
-            const teamName = savedTeams.find(t=>t.id===h.teamId)?.name || "Unknown Team";
-            bar.innerHTML = `<div class="chart-tooltip"><strong>${h.date} (${teamName})</strong><br>Profit: ${formatNumber(h.profit)}<br>XP/Hr: ${formatNumber(h.xpHr)}</div>`;
-            chart.appendChild(bar);
+            pendingHunt = { date: new Date().toLocaleDateString(), dur: d.dur, prof: d.bal, xph: (d.xp/d.dur)*60, tt };
+
+            if(saveMode) {
+                const spn = document.getElementById("huntSpawnInput").value.trim();
+                if(!spn) { showToast("Enter a Respawn Name!", true); return; }
+                pendingHunt.id = Date.now(); pendingHunt.spn = spn;
+                pendingHunt.tId = document.getElementById("huntTeamSelect").value;
+                pendingHunt.wId = document.getElementById("huntWheelSelect").value;
+                dbHunts.unshift(pendingHunt); saveDB(); showToast("Hunt Saved!");
+                document.getElementById("huntSpawnInput").value=""; document.getElementById("huntLogInput").value="";
+                renderHunts(); activeFolder=spn; loadHuntDash(spn);
+            }
+        } catch(e) {}
+    }
+
+    function loadHuntDash(spn) {
+        activeFolder = spn; document.getElementById("huntDash").style.display="block";
+        document.getElementById("hdTitle").innerText = spn;
+        const hnts = dbHunts.filter(h=>h.spn===spn);
+        
+        let tp=0, tm=0, px=0; hnts.forEach(h=>{ tp+=h.prof; tm+=h.dur; px=Math.max(px, h.xph||0); });
+        document.getElementById("hdTotP").innerText = formatNum(tp);
+        document.getElementById("hdPeakX").innerText = formatNum(px);
+        document.getElementById("hdAvgP").innerText = formatNum(tp/(tm/60||1));
+
+        // Graph
+        const ch = document.getElementById("hdChart"); ch.innerHTML="";
+        const rec = hnts.slice(0,10).reverse(); const mp = Math.max(...rec.map(h=>Math.abs(h.prof)), 1);
+        rec.forEach(h => {
+            const b = document.createElement("div"); b.className="chart-bar";
+            b.style.height = ((Math.abs(h.prof)/mp)*100)+"%";
+            if(h.prof<0) b.style.background = "#d9534f";
+            
+            // A/B Color coding by wheel preset
+            if(h.wId && h.prof>0) {
+                const wColor = "#" + Math.floor(Math.abs(Math.sin(h.wId)*16777215)).toString(16).padStart(6, '0');
+                b.style.background = wColor; // Dynamic color based on preset ID
+            }
+            
+            const wName = dbWheels.find(w=>w.id==h.wId)?.name || "No Preset";
+            b.innerHTML = `<div class="chart-tooltip"><strong>${h.date}</strong><br>Prof: ${formatNum(h.prof)}<br>XP/H: ${formatNum(h.xph)}<br>⚙️ Wheel: ${wName}</div>`;
+            ch.appendChild(b);
         });
 
-        const list = document.getElementById("huntHistoryList");
-        list.innerHTML = hunts.map(h => {
-            const tName = savedTeams.find(t=>t.id===h.teamId)?.name || "Unknown";
+        // Hist List
+        const list = document.getElementById("hdHistory");
+        list.innerHTML = hnts.map(h => {
+            const tN = dbTeams.find(t=>t.id==h.tId)?.name || "Unknown Team";
+            const wN = dbWheels.find(w=>w.id==h.wId)?.name || "No Wheel Preset";
             return `
-            <div class="hunt-log-item">
-                <div style="position:relative; cursor:help;">
-                    <strong>${h.date}</strong> - ${tName}
-                    <div class="chart-tooltip" style="bottom:auto; top:100%; left:0; transform:none; font-family:monospace; min-width:250px;">${h.tooltipText}</div>
+            <div class="vip-item" style="display:flex; justify-content:space-between; align-items:center; cursor:help;">
+                <div style="position:relative;">
+                    <strong>${h.date}</strong> <span style="font-size:10px; color:#aaa;">(${tN}) | ⚙️ ${wN}</span>
+                    <div class="chart-tooltip" style="bottom:auto; top:100%; left:0; transform:none; min-width:200px;">${h.tt}</div>
                 </div>
-                <div style="color:${h.profit >= 0 ? '#3ba55c' : '#ed4245'}; font-weight:bold;">${formatNumber(h.profit)}</div>
-                <button class="badge-kick-btn" style="display:block; padding:2px 5px;" onclick="deleteHunt(${h.id})">X</button>
+                <div style="color:${h.prof>=0?'#5cb85c':'#d9534f'}; font-weight:bold;">${formatNum(h.prof)} <button class="btn-quick-del" style="display:inline-block; margin-left:10px;" onclick="delHunt(${h.id})">X</button></div>
             </div>`;
         }).join("");
     }
+    function delHunt(id) { if(!confirm("Delete log?")) return; dbHunts=dbHunts.filter(h=>h.id!==id); saveDB(); renderHunts(); }
 
-    function deleteHunt(id) {
-        if(confirm("Remove this hunt record?")) {
-            savedHunts = savedHunts.filter(h => h.id !== id);
-            localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
-            populateHuntDropdowns(); renderSpawnFolders();
-        }
+
+    /* =========================================================
+       TAB 4: MY MAPS
+    ========================================================= */
+    const cvs = document.getElementById('strCvs'); const ctx = cvs.getContext('2d');
+    let isDraw=false, cCol='#ff5252', bgImg=new Image(), cHist=[];
+
+    function uploadCanvasMap(e) {
+        const f = e.target.files[0]; if(!f) return; const r = new FileReader();
+        r.onload = ev => {
+            bgImg.onload = () => {
+                document.getElementById('cvsText').style.display='none'; cvs.style.display='block';
+                // Scale canvas to fit wrapper but keep resolution logic simple
+                let w = bgImg.width; let h = bgImg.height;
+                const maxW = document.getElementById('cvsWrapper').clientWidth;
+                if(w > maxW) { h = h * (maxW/w); w = maxW; }
+                cvs.width = w; cvs.height = h;
+                ctx.drawImage(bgImg, 0,0, w,h); saveCState();
+            }; bgImg.src = ev.target.result;
+        }; r.readAsDataURL(f);
     }
-
-    /* ================= TAB 4: MY MAPS (Strategy) ================= */
-    const canvas = document.getElementById('strategyMap'); const ctx = canvas.getContext('2d');
-    let isDrawing = false, currentBrushColor = '#ff5252', baseImage = new Image(), historyArr = [];
-
-    function uploadMap(e) {
-        const file = e.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            baseImage.onload = function() {
-                document.getElementById('canvasPlaceholder').style.display = 'none'; canvas.style.display = 'block';
-                canvas.width = baseImage.width; canvas.height = baseImage.height;
-                ctx.drawImage(baseImage, 0, 0); saveState();
-            }; baseImage.src = event.target.result;
-        }; reader.readAsDataURL(file);
-    }
-    function setColor(btn, color) { document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentBrushColor = color; }
+    function setCanvasColor(btn, col) { document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); cCol=col; }
     
-    canvas.addEventListener('mousedown', startPos); canvas.addEventListener('touchstart', startPos);
-    canvas.addEventListener('mouseup', endPos); canvas.addEventListener('touchend', endPos);
-    canvas.addEventListener('mousemove', draw); canvas.addEventListener('touchmove', draw);
-
-    function getMousePos(e) {
-        const rect = canvas.getBoundingClientRect();
+    // Touch & Mouse
+    function getMPos(e) {
+        const r = cvs.getBoundingClientRect();
         let cx = e.touches ? e.touches[0].clientX : e.clientX; let cy = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: (cx - rect.left) * (canvas.width / rect.width), y: (cy - rect.top) * (canvas.height / rect.height) };
+        return { x: (cx-r.left)*(cvs.width/r.width), y: (cy-r.top)*(cvs.height/r.height) };
     }
-    function startPos(e) { e.preventDefault(); isDrawing = true; draw(e); }
-    function endPos(e) { e.preventDefault(); isDrawing = false; ctx.beginPath(); saveState(); }
-    function draw(e) {
-        if (!isDrawing) return; e.preventDefault();
-        const pos = getMousePos(e);
-        ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = currentBrushColor;
-        ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
-    }
-    function saveState() { historyArr.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); }
-    function undoMap() { if(historyArr.length > 1) { historyArr.pop(); ctx.putImageData(historyArr[historyArr.length-1], 0, 0); } }
-    function clearMap() { if(!baseImage.src) return; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(baseImage, 0, 0); historyArr = []; saveState(); }
+    cvs.addEventListener('mousedown', e=>{e.preventDefault(); isDraw=true; drawMap(e);}); cvs.addEventListener('touchstart', e=>{e.preventDefault(); isDraw=true; drawMap(e);}, {passive:false});
+    cvs.addEventListener('mouseup', e=>{e.preventDefault(); isDraw=false; ctx.beginPath(); saveCState();}); cvs.addEventListener('touchend', e=>{e.preventDefault(); isDraw=false; ctx.beginPath(); saveCState();});
+    cvs.addEventListener('mousemove', drawMap); cvs.addEventListener('touchmove', drawMap, {passive:false});
     
-    function saveMapToVault() {
-        if(!baseImage.src) { showToast("Upload map first", true); return; }
-        const title = prompt("Name this strategy map (e.g. 'Ingol Trap'):"); if(!title) return;
-        savedMaps.push({ id: Date.now(), title, date: new Date().toLocaleDateString(), image: canvas.toDataURL("image/jpeg", 0.7) });
-        localStorage.setItem("tibiaMaps", JSON.stringify(savedMaps));
-        showToast("Saved to Map Vault!"); renderMapVault(); renderQuickMaps();
+    function drawMap(e) {
+        if(!isDraw) return; e.preventDefault(); const p=getMPos(e);
+        ctx.lineWidth=4; ctx.lineCap='round'; ctx.strokeStyle=cCol;
+        ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    }
+    function saveCState() { cHist.push(ctx.getImageData(0,0,cvs.width,cvs.height)); }
+    function undoCanvas() { if(cHist.length>1) { cHist.pop(); ctx.putImageData(cHist[cHist.length-1],0,0); } }
+    function clearCanvas() { if(!bgImg.src) return; ctx.clearRect(0,0,cvs.width,cvs.height); ctx.drawImage(bgImg,0,0,cvs.width,cvs.height); cHist=[]; saveCState(); }
+    
+    function saveMapVault() {
+        if(!bgImg.src) { showToast("Upload map first",true); return; }
+        const t = prompt("Map Title:"); if(!t) return;
+        dbMaps.push({id:Date.now(), title:t, img:cvs.toDataURL("image/jpeg", 0.6)}); saveDB(); renderMaps(); showToast("Map Saved!");
+    }
+    function renderMaps() {
+        const gal = document.getElementById("mapVaultGrid"); gal.innerHTML="";
+        dbMaps.forEach(m => {
+            gal.innerHTML += `<div class="qmap-card" style="height:150px; flex-direction:column;" onclick="copyMapData('${m.id}')">
+                <img src="${m.img}" style="height:80%; object-fit:contain;">
+                <div style="background:#111; width:100%; text-align:center; padding:5px; font-size:12px; font-weight:bold; color:var(--tibia-gold); border-top:1px solid #333;">${m.title}</div>
+            </div>`;
+        });
+        renderQuickMaps(); // Update Tab 1
+    }
+    async function copyMapData(id) {
+        const m = dbMaps.find(x=>x.id==id); if(!m) return;
+        try { const r=await fetch(m.img); const b=await r.blob(); navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(()=>showToast("Copied to Discord!")).catch(()=>showToast("Copy failed",true)); } catch(e){}
     }
 
-    function renderMapVault() {
-        const gal = document.getElementById("mapVaultGrid"); gal.innerHTML = "";
-        if(savedMaps.length === 0) { gal.innerHTML = "<p style='color:#aaa;'>No maps saved.</p>"; return; }
-        savedMaps.forEach(m => {
-            gal.innerHTML += `
-                <div class="map-card">
-                    <img src="${m.image}">
-                    <div style="font-weight:bold; color:#f1c40f; margin-bottom:5px;">${m.title}</div>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-success" style="flex:1;" onclick="copyMapData('${m.id}')">Copy to Discord</button>
-                        <button class="btn-danger" onclick="deleteMap('${m.id}')">X</button>
-                    </div>
-                </div>`;
+
+    /* =========================================================
+       TAB 5: MY WHEEL (PROTOTYPE FRAMEWORK)
+    ========================================================= */
+    /* 
+       Note on Wheel Math: 
+       A true 1:1 wheel requires thousands of lines of SVG coordinates. 
+       This is a highly functional mathematical prototype that generates the visual nodes, 
+       enforces center-out pathing, calculates points correctly, and saves presets for the A/B testing loop.
+    */
+    let wheelNodes = [];
+    let allocatedPts = 0;
+    
+    function updateWheelPoints() {
+        const lvl = parseInt(document.getElementById("wheelLvl").value)||0;
+        const total = Math.max(0, lvl - 50);
+        document.getElementById("whlPts").innerText = (total - allocatedPts) + " / " + total;
+    }
+
+    function initWheel() {
+        const cont = document.getElementById("wheelBox");
+        // Keep the center
+        cont.innerHTML = '<div class="wheel-node wheel-center" onclick="resetWheel()"></div>';
+        wheelNodes = []; allocatedPts = 0;
+        
+        // Generate 4 mathematical branches (NE, SE, SW, NW)
+        const angles = [45, 135, 225, 315];
+        const tiers = [
+            { dist: 60, pts: 50,  id: "t1" },
+            { dist: 120, pts: 100, id: "t2" },
+            { dist: 180, pts: 100, id: "t3" }
+        ];
+
+        let nodeId = 1;
+        angles.forEach((ang, aIdx) => {
+            let prevNode = null;
+            tiers.forEach((t, tIdx) => {
+                const rad = ang * (Math.PI / 180);
+                // Math center is 50%, 50%
+                const x = 50 + (t.dist * Math.cos(rad)) / 2.5; // Scaled for CSS %
+                const y = 50 + (t.dist * Math.sin(rad)) / 2.5;
+                
+                // Draw connecting line
+                if(prevNode) {
+                    const line = document.createElement("div"); line.className = "wheel-line";
+                    // Geometry to draw line between nodes
+                    const dx = x - prevNode.x; const dy = y - prevNode.y;
+                    const len = Math.sqrt(dx*dx + dy*dy); const a = Math.atan2(dy, dx) * (180/Math.PI);
+                    line.style.width = len + "%"; line.style.left = prevNode.x + "%"; line.style.top = prevNode.y + "%";
+                    line.style.transform = `rotate(${a}deg)`; line.id = `line-${nodeId}`;
+                    cont.appendChild(line);
+                }
+
+                // Draw Node
+                const node = document.createElement("div"); node.className = "wheel-node";
+                node.style.left = x + "%"; node.style.top = y + "%"; node.id = `node-${nodeId}`;
+                
+                // Node Logic
+                const nData = { id: nodeId, x, y, cost: t.pts, active: false, req: prevNode ? prevNode.id : 0 };
+                wheelNodes.push(nData);
+                
+                node.onclick = () => toggleNode(nData.id);
+                cont.appendChild(node);
+                
+                prevNode = nData;
+                nodeId++;
+            });
+        });
+        updateWheelPoints();
+    }
+
+    function toggleNode(id) {
+        const lvl = parseInt(document.getElementById("wheelLvl").value)||0;
+        const totalPts = Math.max(0, lvl - 50);
+        
+        const node = wheelNodes.find(n=>n.id===id);
+        if(node.active) {
+            // Remove logic (must remove children first)
+            const children = wheelNodes.filter(n=>n.req===id && n.active);
+            if(children.length===0) {
+                node.active = false; allocatedPts -= node.cost;
+                document.getElementById(`node-${id}`).classList.remove('active');
+                const line = document.getElementById(`line-${id}`); if(line) line.classList.remove('active');
+            }
+        } else {
+            // Add logic (must have parent, must have points)
+            if(node.req === 0 || wheelNodes.find(n=>n.id===node.req).active) {
+                if(allocatedPts + node.cost <= totalPts) {
+                    node.active = true; allocatedPts += node.cost;
+                    document.getElementById(`node-${id}`).classList.add('active');
+                    const line = document.getElementById(`line-${id}`); if(line) line.classList.add('active');
+                } else showToast("Not enough points!", true);
+            } else {
+                // Auto-fill path if parent inactive
+                let path = []; let curr = node;
+                while(curr && !curr.active) { path.push(curr); curr = wheelNodes.find(n=>n.id===curr.req); }
+                path = path.reverse();
+                let pathCost = path.reduce((s,n)=>s+n.cost, 0);
+                if(allocatedPts + pathCost <= totalPts) {
+                    path.forEach(n => {
+                        n.active = true; allocatedPts += n.cost;
+                        document.getElementById(`node-${n.id}`).classList.add('active');
+                        const line = document.getElementById(`line-${n.id}`); if(line) line.classList.add('active');
+                    });
+                } else showToast("Not enough points to unlock path!", true);
+            }
+        }
+        updateWheelPoints();
+    }
+
+    function resetWheel() {
+        wheelNodes.forEach(n => n.active = false); allocatedPts = 0;
+        document.querySelectorAll('.wheel-node, .wheel-line').forEach(el => el.classList.remove('active'));
+        updateWheelPoints();
+    }
+
+    function saveWheelPreset() {
+        const name = prompt("Name this Wheel Preset:"); if(!name) return;
+        const activeIds = wheelNodes.filter(n=>n.active).map(n=>n.id);
+        const voc = document.getElementById("wheelVoc").value;
+        dbWheels.push({ id: Date.now(), name: `${voc} - ${name}`, voc, activeIds });
+        saveDB(); renderWheelPresets(); showToast("Preset Saved!");
+    }
+
+    function renderWheelPresets() {
+        const div = document.getElementById("wheelPresetList"); div.innerHTML = "";
+        dbWheels.forEach(w => {
+            const r = document.createElement("div"); r.className = "vip-item";
+            r.innerHTML = `<strong>${w.name}</strong> <button class="btn-quick-del" style="float:right;" onclick="delWheel(${w.id}, event)">X</button>`;
+            r.onclick = () => loadWheelPreset(w.id);
+            div.appendChild(r);
         });
     }
 
-    async function copyMapData(id) {
-        const m = savedMaps.find(x => x.id == id); if(!m) return;
-        try {
-            const res = await fetch(m.image); const blob = await res.blob();
-            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => showToast("Copied to Discord!")).catch(()=>showToast("Copy failed", true));
-        } catch(e) { showToast("Error copying", true); }
+    function loadWheelPreset(id) {
+        const w = dbWheels.find(x=>x.id===id); if(!w) return;
+        document.getElementById("wheelVoc").value = w.voc; initWheel();
+        // Artificially inflate level so preset can load regardless of current input box
+        let cost = 0; w.activeIds.forEach(nId => cost += wheelNodes.find(n=>n.id===nId)?.cost || 0);
+        document.getElementById("wheelLvl").value = Math.max(document.getElementById("wheelLvl").value, cost + 50);
+        
+        w.activeIds.forEach(nId => toggleNode(nId));
     }
-    function deleteMap(id) {
-        if(confirm("Delete this map?")) { savedMaps = savedMaps.filter(x => x.id != id); localStorage.setItem("tibiaMaps", JSON.stringify(savedMaps)); renderMapVault(); renderQuickMaps(); }
-    }
+    
+    function delWheel(id, e) { e.stopPropagation(); if(confirm("Delete Preset?")) { dbWheels = dbWheels.filter(w=>w.id!==id); saveDB(); renderWheelPresets(); } }
+
 </script>
 </body>
 </html>
