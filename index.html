@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tibia Hub</title>
+    <style>
+        /* --- GLOBAL & THEME --- */
+        body { font-family: Arial, sans-serif; background-color: #1e2124; color: #d1d1d1; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e2124; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        h1, h2, h3, h4 { margin-top: 0; color: #f1c40f; }
+        h3 { border-bottom: 1px solid #444; padding-bottom: 10px; }
+        
+        /* --- NAVBAR & DROPDOWN --- */
+        .navbar { background-color: #2f3136; padding: 0 20px; display: flex; gap: 10px; border-bottom: 2px solid #202225; box-shadow: 0 2px 5px rgba(0,0,0,0.5); align-items: center; height: 60px;}
+        .navbar-brand { color: #f1c40f; font-weight: bold; font-size: 20px; margin-right: auto; }
+        .nav-btn { background: none; border: none; color: #d1d1d1; font-size: 15px; font-weight: bold; cursor: pointer; padding: 20px 15px; border-radius: 0; transition: 0.2s; height: 100%;}
+        .nav-btn:hover { background-color: #40444b; color: white; }
+        .nav-btn.active { background-color: #7289da; color: white; border-bottom: 3px solid white;}
+        
+        .dropdown { position: relative; display: inline-block; height: 100%;}
+        .dropbtn { background: #3ba55c; color: white; border: none; font-weight: bold; font-size: 14px; cursor: pointer; padding: 0 20px; height: 100%; border-radius: 0; transition: 0.2s;}
+        .dropbtn:hover { background: #2d7d46; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 60px; background-color: #2f3136; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.8); z-index: 1000; border: 1px solid #444; border-radius: 0 0 4px 4px; overflow: hidden;}
+        .dropdown-content a { color: white; padding: 12px 16px; text-decoration: none; display: block; font-size: 14px; font-weight: bold; border-bottom: 1px solid #444;}
+        .dropdown-content a:hover { background-color: #40444b; color: #f1c40f; }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* --- LAYOUTS --- */
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .panel { background-color: #36393e; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-top: 3px solid #f1c40f; margin-bottom: 20px;}
+        .grid-3col { display: grid; grid-template-columns: 250px 1fr 300px; gap: 20px; align-items: start; }
+        .grid-2col { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+
+        /* --- INPUTS & BUTTONS --- */
+        input[type="text"], textarea, select { padding: 10px; border: 1px solid #444; background-color: #282b30; color: white; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; transition: 0.2s;}
+        button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px;}
+        .btn-primary { background-color: #7289da; color: white; } .btn-primary:hover { background-color: #5b6eae; }
+        .btn-success { background-color: #3ba55c; color: white; } .btn-success:hover { background-color: #2d7d46; }
+        .btn-danger { background-color: #ed4245; color: white; } .btn-danger:hover { background-color: #c03537; }
+        .btn-warning { background-color: #f1c40f; color: black; } .btn-warning:hover { background-color: #d4ac0d; }
+        .btn-info { background-color: #00bcd4; color: white; } .btn-info:hover { background-color: #0097a7; }
+        .btn-small { padding: 4px 8px; font-size: 12px; }
+
+        /* --- AUTOCOMPLETE --- */
+        .autocomplete-wrapper { position: relative; flex: 1; }
+        .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background-color: #2f3136; max-height: 150px; overflow-y: auto; border-radius: 0 0 4px 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
+        .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px;}
+        .autocomplete-items div:hover { background-color: #7289da; color: white; }
+        .ac-source { font-size: 10px; color: #aaa; float: right; margin-top: 2px;}
+
+        /* --- LISTS & UI --- */
+        .team-list-item { background-color: #2f3136; padding: 10px; border-radius: 4px; cursor: pointer; border: 1px solid #444; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; position: relative;}
+        .team-list-item:hover, .team-list-item.active { background-color: #40444b; border-color: #7289da;}
+        .btn-quick-del { display: none; background: #ed4245; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; cursor: pointer;}
+        .team-list-item:hover .btn-quick-del { display: block; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background-color: #2f3136; margin-bottom: 5px; border-radius: 4px; border-left: 3px solid #7289da;}
+        
+        /* ROSTER BADGES */
+        .member-badge { background-color: #282b30; padding: 8px 12px; border-radius: 4px; font-size: 14px; border: 1px solid #555; display: inline-flex; align-items: center; gap: 8px; margin: 5px; position: relative; cursor: pointer; transition: 0.2s;}
+        .member-badge:hover { background: #40444b; border-color: #f1c40f; }
+        .hover-links { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1e2124; padding: 5px; border: 1px solid #f1c40f; border-radius: 4px; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.8); gap: 5px;}
+        .member-badge:hover .hover-links { display: flex; }
+        .hover-links a, .hover-links div { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: #2f3136; padding: 4px 8px; border-radius: 3px; white-space: nowrap; cursor: pointer;}
+        .hover-links a:hover, .hover-links div:hover { background: #7289da; }
+        .badge-edit-btn, .badge-kick-btn { display: none; padding: 3px 6px; border-radius: 3px; font-size: 10px; border:none; cursor:pointer;}
+        .badge-edit-btn { background: #00bcd4; color: white; } .badge-kick-btn { background: #ed4245; color: white; }
+        .edit-mode .badge-edit-btn, .edit-mode .badge-kick-btn { display: inline-block; }
+
+        /* --- TRANSLATOR --- */
+        .trans-row { display: flex; gap: 5px; align-items: center; margin-bottom: 10px;}
+        .btn-swap { background: #444; color: white; border-radius: 4px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: 1px solid #555;}
+        .btn-swap:hover { background: #f1c40f; color: black; border-color: #f1c40f;}
+
+        /* --- QUICK MAPS --- */
+        .qmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .qmap-card { position: relative; background: #1e2124; border: 1px solid #444; border-radius: 4px; overflow: hidden; height: 80px; display: flex; align-items: center; justify-content: center; cursor:pointer;}
+        .qmap-card img { max-width: 100%; max-height: 100%; object-fit: cover; opacity: 0.7; transition: 0.2s;}
+        .qmap-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); flex-direction: column; align-items: center; justify-content: center; padding: 5px;}
+        .qmap-card:hover img { opacity: 0.3; }
+        .qmap-card:hover .qmap-overlay { display: flex; }
+
+        /* --- ANALYTICS / HUNTS --- */
+        .folder-list { display: flex; flex-direction: column; gap: 5px; }
+        .folder-item { background: #2f3136; padding: 12px; border-radius: 4px; border: 1px solid #444; cursor: pointer; font-weight: bold; transition: 0.1s;}
+        .folder-item:hover, .folder-item.active { background: #40444b; border-color: #f1c40f; color: #f1c40f;}
+        
+        .metric-box { background: #2f3136; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #444; flex: 1;}
+        .metric-val { font-size: 20px; font-weight: bold; color: #f1c40f; margin-top: 5px;}
+        .chart-container { display: flex; align-items: flex-end; gap: 5px; height: 150px; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #555;}
+        .chart-bar { background: #7289da; flex: 1; border-radius: 4px 4px 0 0; position: relative; min-width: 20px; transition: 0.2s;}
+        .chart-bar:hover { background: #5b6eae; opacity: 0.8;}
+        .chart-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: black; padding: 8px; font-size: 11px; border-radius: 4px; z-index: 10; white-space: pre-wrap; text-align: left; border: 1px solid #555; pointer-events: none;}
+        .chart-bar:hover .chart-tooltip { display: block; }
+        
+        .hunt-log-item { background: #2f3136; padding: 10px; border-radius: 4px; border-left: 3px solid #3ba55c; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 13px;}
+
+        /* --- MAP CREATOR --- */
+        .canvas-toolbar { display: flex; gap: 5px; align-items: center; margin-bottom: 10px; background: #2f3136; padding: 10px; border-radius: 4px; flex-wrap: wrap;}
+        .color-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        .color-btn.active { border-color: #f1c40f; transform: scale(1.2); }
+        .canvas-container { position: relative; width: 100%; border: 1px solid #444; background: #1e2124; min-height: 400px; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 4px;}
+        canvas { cursor: crosshair; max-width: 100%; display: none; }
+        .map-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;}
+        .map-card { background: #2f3136; border: 1px solid #444; border-radius: 6px; padding: 10px; text-align: center;}
+        .map-card img { max-width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 150px; object-fit: contain; background: #1e2124;}
+
+        /* --- MODALS & TOAST --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: #3ba55c; color: #fff; text-align: center; border-radius: 4px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
+        #toast.show { visibility: visible; animation: fadein 0.3s, fadeout 0.3s 2.7s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .modal-bg { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1500; align-items: center; justify-content: center; }
+        .modal-content { background: #282b30; padding: 25px; border-radius: 8px; width: 350px; border-top: 4px solid #f1c40f; box-shadow: 0 10px 25px rgba(0,0,0,0.9); color: white;}
+        .modal-content input, .modal-content select { margin-bottom: 10px; }
+        .profile-data-row { margin-bottom: 8px; font-size: 14px;}
+        .profile-data-row strong { color: #aaa; display: inline-block; width: 90px;}
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="navbar-brand">Tibia Hub</div>
+    <button class="nav-btn active" onclick="switchTab('pageMain', this)">Main Page</button>
+    <button class="nav-btn" onclick="switchTab('pageTeams', this)">My Teams</button>
+    <button class="nav-btn" onclick="switchTab('pageHunts', this)">My Hunts</button>
+    <button class="nav-btn" onclick="switchTab('pageMaps', this)">My Maps</button>
+    
+    <div class="dropdown">
+        <button class="dropbtn">🌐 Quick Resources ▼</button>
+        <div class="dropdown-content">
+            <a href="https://hakaimarket.com/hunt-advisor" target="_blank">🔥 Hakai Market (Advisor)</a>
+            <a href="https://tibia.fandom.com/wiki/Main_Page" target="_blank">🛡️ TibiaWiki</a>
+            <a href="https://www.tibiabosses.com/" target="_blank">👹 TibiaBosses</a>
+            <a href="https://guildstats.eu/" target="_blank">📊 GuildStats</a>
+            <a href="https://tibiapal.com/" target="_blank">⚔️ TibiaPal</a>
+            <a href="https://intibia.com/" target="_blank">🔍 Intibia</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    
+    <!-- ================= TAB 1: MAIN PAGE (Deployment Lobby) ================= -->
+    <div id="pageMain" class="page active">
+        <div class="grid-3col">
+            
+            <!-- LEFT: Quick Load -->
+            <div class="panel">
+                <h3>Quick Load</h3>
+                <p style="font-size:12px; color:#aaa; margin-top:0;">Click to load. Hover to delete `[X]`.</p>
+                <div id="quickLoadList"></div>
+            </div>
+
+            <!-- CENTER: Stupid-Proof Search -->
+            <div class="panel" style="overflow: visible;">
+                <h3>Type your Characters!</h3>
+                <p style="font-size:12px; color:#aaa; margin-top:0;">Enter your current party members to find out who is missing.</p>
+                
+                <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="charName" placeholder="Player 1, Player 2, Player 3..." oninput="handleAutoComplete()" onkeypress="if(event.key === 'Enter') findParty()">
+                        <div id="autocompleteList" class="autocomplete-items" style="display:none;"></div>
+                    </div>
+                    <button class="btn-primary" onclick="findParty()">Search</button>
+                </div>
+                <div id="status" style="text-align:center; color:#aaa; margin-bottom: 15px; font-size:13px;"></div>
+                <div id="results"></div>
+            </div>
+
+            <!-- RIGHT: Utility Belt -->
+            <div>
+                <!-- Translator -->
+                <div class="panel">
+                    <h3>Quick Translator</h3>
+                    <div class="trans-row">
+                        <select id="transFrom" style="flex:1;">
+                            <option value="auto">Auto-Detect</option>
+                            <option value="pl">Polish</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="es">Spanish</option>
+                            <option value="en">English</option>
+                        </select>
+                        <div class="btn-swap" onclick="swapTranslator()">⇄</div>
+                        <select id="transTo" style="flex:1;" onchange="translateText()">
+                            <option value="en">English</option>
+                            <option value="pl">Polish</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="es">Spanish</option>
+                        </select>
+                    </div>
+                    <textarea id="transInput" placeholder="Paste chat here..." rows="2" oninput="debounceTranslate()" style="margin-bottom:5px;"></textarea>
+                    <textarea id="transOutput" placeholder="Translation..." rows="2" readonly style="background:#1e2124; margin-bottom:5px;"></textarea>
+                    <button class="btn-success" style="width:100%" onclick="copyText(document.getElementById('transOutput').value)">Copy Translation</button>
+                </div>
+
+                <!-- Quick Maps -->
+                <div class="panel">
+                    <h3>Quick Maps</h3>
+                    <p style="font-size:12px; color:#aaa; margin-top:0;">Hover & click to copy to Discord.</p>
+                    <div id="quickMapsGrid" class="qmap-grid"></div>
+                </div>
+
+                <!-- Quick Splitter -->
+                <div class="panel">
+                    <h3>Quick Splitter</h3>
+                    <p style="font-size:12px; color:#aaa; margin-top:0;">Fast payout, no saving.</p>
+                    <textarea id="quickSplitInput" placeholder="Paste Hunt Analyzer..." rows="2" style="margin-bottom:5px;"></textarea>
+                    <button class="btn-primary" style="width:100%" onclick="quickSplitLoot()">Calculate & Copy to Clipboard</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= TAB 2: MY TEAMS (Roster & CRM) ================= -->
+    <div id="pageTeams" class="page">
+        <div class="grid-2col">
+            
+            <div class="panel">
+                <h3>My Teams</h3>
+                <div id="savedTeamsList"></div>
+            </div>
+
+            <div id="teamEditorPanel" style="display:none;">
+                <div class="panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="margin:0;" id="dashTeamName">Team Name</h2>
+                        <button class="btn-warning" id="btnEditTeam" onclick="toggleEditMode()">Manage Roster</button>
+                    </div>
+                    <p style="font-size:12px; color:#aaa; margin-top:0;">Click a member to view their Player Dossier.</p>
+                    
+                    <div id="dashTeamMembers"></div>
+                    
+                    <div id="addMemberBox" style="display:none; margin-top:15px; border-top:1px dashed #555; padding-top:15px; display:none; gap:10px;">
+                        <input type="text" id="newMemberInput" placeholder="Character Name" style="flex:1;">
+                        <button class="btn-primary" onclick="addMemberToActiveTeam()">+ Add Member</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= TAB 3: MY HUNTS (Analytics Hub) ================= -->
+    <div id="pageHunts" class="page">
+        
+        <!-- Input Area (Top Down) -->
+        <div class="panel" style="background: #282b30; border: 1px solid #444;">
+            <h3>Input New Hunt</h3>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" id="huntSpawnInput" placeholder="Where did you hunt? (e.g. Secret Library)" list="recentSpawnsList" style="flex:1;">
+                <datalist id="recentSpawnsList"></datalist>
+                <select id="huntTeamSelect" style="width: 250px;">
+                    <option value="">Select Team...</option>
+                </select>
+            </div>
+            <textarea id="huntLog" placeholder="Paste your Tibia Party Hunt Analyzer log here..." rows="4"></textarea>
+            
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn-primary" style="flex:1; padding: 15px; font-size:15px;" onclick="calculateLootOnly()">Calculate Split Only</button>
+                <button class="btn-success" style="flex:2; padding: 15px; font-size:15px; font-weight:900;" onclick="calculateAndSaveHunt()">Calculate & Save Hunt!</button>
+            </div>
+            <div id="lootResult" style="background:#1e2124; padding:15px; border-radius:4px; margin-top:10px; font-family:monospace; display:none; font-size:14px;"></div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Left: Spawn Folders -->
+            <div class="panel">
+                <h3>Respawn Analytics</h3>
+                <p style="font-size:12px; color:#aaa; margin-top:0;">Select a spawn to view data.</p>
+                <div id="spawnFolderList" class="folder-list"></div>
+            </div>
+
+            <!-- Right: Metrics Dashboard -->
+            <div class="panel" id="metricsDashboard" style="display:none;">
+                <h2 id="metricSpawnTitle" style="text-align:center; margin-bottom: 20px;">Spawn Name</h2>
+                
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <div class="metric-box">Total Profit<div class="metric-val" id="metTotalProf">0</div></div>
+                    <div class="metric-box">Total Hours<div class="metric-val" id="metTotalHrs" style="color:#00bcd4;">0</div></div>
+                    <div class="metric-box">Peak Exp/Hr<div class="metric-val" id="metPeakXp" style="color:#69f0ae;">0</div></div>
+                    <div class="metric-box">Avg Profit/Hr<div class="metric-val" id="metAvgProf" style="color:#3ba55c;">0</div></div>
+                </div>
+                
+                <h4 style="margin:0; color:#aaa; text-align:center;">Hunt History & Performance</h4>
+                <div class="chart-container" id="profitChart"></div>
+
+                <div id="huntHistoryList" style="margin-top:20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TAB 4: MY MAPS (Strategy Workshop) ================= -->
+    <div id="pageMaps" class="page">
+        
+        <!-- Creator -->
+        <div class="panel">
+            <h3>Map Creator</h3>
+            <div class="canvas-toolbar">
+                <button class="btn-primary" onclick="document.getElementById('mapUploadInput').click()">1. Upload Map</button>
+                <input type="file" id="mapUploadInput" accept="image/png, image/jpeg" style="display:none;" onchange="uploadMap(event)">
+                
+                <div style="border-left: 2px solid #555; padding-left: 10px; display:flex; gap:8px; align-items:center;">
+                    <span style="font-size:12px; color:#aaa; margin-right:5px;">2. Draw:</span>
+                    <div class="color-btn active" style="background:#ff5252;" onclick="setColor(this, '#ff5252')" title="Knight"></div>
+                    <div class="color-btn" style="background:#448aff;" onclick="setColor(this, '#448aff')" title="Druid"></div>
+                    <div class="color-btn" style="background:#69f0ae;" onclick="setColor(this, '#69f0ae')" title="Paladin"></div>
+                    <div class="color-btn" style="background:#ffd740;" onclick="setColor(this, '#ffd740')" title="Sorcerer"></div>
+                    <div class="color-btn" style="background:#e0e0e0;" onclick="setColor(this, '#e0e0e0')" title="Monk"></div>
+                </div>
+
+                <div style="border-left: 2px solid #555; padding-left: 10px; display:flex; gap:5px; margin-left:auto;">
+                    <button class="btn-warning" onclick="undoMap()">Undo</button>
+                    <button class="btn-danger" onclick="clearMap()">Clear</button>
+                    <button class="btn-success" onclick="saveMapToVault()">3. Save Map</button>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <span id="canvasPlaceholder" style="color:#666; font-size:14px;">Upload an image to start planning...</span>
+                <canvas id="strategyMap"></canvas>
+            </div>
+        </div>
+
+        <!-- Vault -->
+        <div class="panel">
+            <h3>Map Vault</h3>
+            <div id="mapVaultGrid" class="map-gallery-grid"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= MODALS & TOAST ================= -->
+<div id="toast">Message</div>
+
+<!-- Add Player Modal -->
+<div class="modal-bg" id="addPlayerModal">
+    <div class="modal-content">
+        <h3 id="modalPlayerName">Recruit Player</h3>
+        <p style="font-size:13px; color:#aaa;">Add this player to an existing team or create a new one.</p>
+        <select id="modalTeamSelect" style="margin-bottom:15px;"></select>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-success" style="flex:1;" onclick="confirmAddPlayer()">Add / Create</button>
+            <button class="btn-danger" style="flex:1;" onclick="document.getElementById('addPlayerModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Player Dossier View -->
+<div class="modal-bg" id="viewDossierModal">
+    <div class="modal-content">
+        <h2 id="vdName" style="margin-bottom:5px;">Name</h2>
+        <div id="vdVoc" style="color:#aaa; font-size:12px; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:10px;">Lvl 100 Vocation</div>
+        
+        <div class="profile-data-row"><strong>Real Name:</strong> <span id="vdReal">Unknown</span></div>
+        <div class="profile-data-row"><strong>Location:</strong> <span id="vdLoc">Unknown</span></div>
+        <div class="profile-data-row"><strong>Discord:</strong> <span id="vdDisc" style="color:#7289da; font-weight:bold;">None</span> 
+            <button class="btn-primary btn-small" id="vdCopyDisc" style="display:none;" onclick="copyText(document.getElementById('vdDisc').innerText)">Copy</button></div>
+        <div class="profile-data-row"><strong>Known Alts:</strong> <span id="vdAlts">None</span></div>
+        
+        <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="document.getElementById('viewDossierModal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<!-- Player Dossier Edit -->
+<div class="modal-bg" id="editDossierModal">
+    <div class="modal-content">
+        <h3>Edit Player Profile</h3>
+        <input type="hidden" id="edCharName">
+        <label style="font-size:12px; color:#aaa;">Real Name:</label>
+        <input type="text" id="edReal" placeholder="e.g. John">
+        <label style="font-size:12px; color:#aaa;">Location:</label>
+        <input type="text" id="edLoc" placeholder="e.g. Brazil">
+        <label style="font-size:12px; color:#aaa;">Discord:</label>
+        <input type="text" id="edDisc" placeholder="e.g. user#1234">
+        <label style="font-size:12px; color:#aaa;">Known Alts (comma separated):</label>
+        <input type="text" id="edAlts" placeholder="e.g. Bubble, Cachero">
+        
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn-success" style="flex:1;" onclick="saveDossier()">Save Profile</button>
+            <button class="btn-danger" style="flex:1;" onclick="document.getElementById('editDossierModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       GLOBAL VARIABLES & INITIALIZATION
+    ========================================= */
+    const MSG_COPY = "Hello, want to hunt? / Hola, ¿quieres cazar? / Oi, quer caçar? / Cześć, szukasz TH?";
+    const CORE_VOCS = ["Knight", "Paladin", "Sorcerer", "Druid", "Monk"]; 
+    
+    let savedTeams = JSON.parse(localStorage.getItem("tibiaTeams")) || [];
+    let savedMaps = JSON.parse(localStorage.getItem("tibiaMaps")) || [];
+    let savedHunts = JSON.parse(localStorage.getItem("tibiaHunts")) || []; 
+
+    let activeTeamId = null; 
+    let activeSpawnFolder = null;
+    let isEditMode = false;
+    let tempRecruit = null;
+    
+    // Auto-complete memory
+    let currentWorldOnlinePlayers = []; 
+    let lastFetchedCharForWorld = "";
+    let personalRolodex = new Set(); 
+
+    window.onload = async () => { 
+        buildRolodex();
+        renderQuickLoad(); renderQuickMaps();
+        renderSavedTeams(); renderMapVault(); 
+        populateHuntDropdowns(); renderSpawnFolders();
+    }
+
+    function showToast(msg, isErr = false) {
+        const toast = document.getElementById("toast");
+        toast.innerText = msg; toast.style.backgroundColor = isErr ? "#ed4245" : "#3ba55c";
+        toast.className = "show"; setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast("Copied!")).catch(() => showToast("Copy failed", true)); }
+
+    function switchTab(pageId, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active'); btn.classList.add('active');
+        
+        if(pageId === 'pageMain') { renderQuickLoad(); renderQuickMaps(); buildRolodex(); }
+        if(pageId === 'pageTeams') { renderSavedTeams(); }
+        if(pageId === 'pageHunts') { populateHuntDropdowns(); renderSpawnFolders(); }
+        if(pageId === 'pageMaps') { renderMapVault(); }
+    }
+
+    function formatName(name) { return encodeURIComponent(name.replace(/ /g, '+')); }
+    function getBaseVoc(voc) {
+        if (!voc) return "None";
+        if (voc.includes("Knight")) return "Knight";
+        if (voc.includes("Paladin")) return "Paladin";
+        if (voc.includes("Sorcerer")) return "Sorcerer";
+        if (voc.includes("Druid")) return "Druid";
+        if (voc.includes("Monk")) return "Monk"; 
+        return "None";
+    }
+
+    function syncProfile(name, profile) {
+        savedTeams.forEach(t => {
+            t.members.forEach(m => { if(m.name === name) m.profile = profile; });
+        });
+        localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
+    }
+
+    /* =========================================
+       AUTO-COMPLETE & SMART WORLD LOGIC
+    ========================================= */
+    function buildRolodex() {
+        personalRolodex.clear();
+        savedTeams.forEach(t => t.members.forEach(m => personalRolodex.add(m.name)));
+    }
+
+    function handleAutoComplete() {
+        const input = document.getElementById("charName");
+        const val = input.value;
+        const listDiv = document.getElementById("autocompleteList");
+        listDiv.innerHTML = "";
+        
+        const parts = val.split(',');
+        
+        // --- SMART BACKGROUND WORLD FETCHER ---
+        // If there's more than 1 part (a comma was typed), check the first name to load its world's online list silently.
+        if (parts.length > 1) {
+            const firstChar = parts[0].trim();
+            if (firstChar && firstChar.toLowerCase() !== lastFetchedCharForWorld.toLowerCase()) {
+                lastFetchedCharForWorld = firstChar;
+                fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(firstChar)}`)
+                    .then(r => r.json())
+                    .then(d => {
+                        const w = d.character?.character?.world;
+                        if(w) return fetch(`https://api.tibiadata.com/v4/world/${w}`);
+                    })
+                    .then(r => r ? r.json() : null)
+                    .then(d => {
+                        if(d && d.world && d.world.online_players) {
+                            currentWorldOnlinePlayers = d.world.online_players.map(p => p.name) || [];
+                            handleAutoComplete(); // Re-trigger UI if they are still typing
+                        }
+                    }).catch(e => {});
+            }
+        }
+
+        const currentSearch = parts[parts.length - 1].trim().toLowerCase();
+        if(currentSearch.length < 2) { listDiv.style.display = "none"; return; }
+
+        let suggestions = [];
+        
+        // 1. Personal Rolodex
+        personalRolodex.forEach(name => {
+            if(name.toLowerCase().startsWith(currentSearch)) suggestions.push({ name, source: "Saved Roster" });
+        });
+
+        // 2. Live World List (Avoid dupes)
+        currentWorldOnlinePlayers.forEach(name => {
+            if(name.toLowerCase().startsWith(currentSearch) && !suggestions.find(s=>s.name === name)) {
+                suggestions.push({ name, source: "Online" });
+            }
+        });
+
+        if(suggestions.length === 0) { listDiv.style.display = "none"; return; }
+
+        suggestions.slice(0, 10).forEach(s => {
+            const div = document.createElement("div");
+            const matchLen = currentSearch.length;
+            div.innerHTML = `<strong>${s.name.substring(0, matchLen)}</strong>${s.name.substring(matchLen)} <span class="ac-source">${s.source}</span>`;
+            div.onclick = function() {
+                parts[parts.length - 1] = " " + s.name;
+                input.value = parts.join(",").trim() + ", ";
+                listDiv.style.display = "none";
+                input.focus();
+            };
+            listDiv.appendChild(div);
+        });
+        listDiv.style.display = "block";
+    }
+
+    document.addEventListener("click", function(e) { if(e.target.id !== "charName") document.getElementById("autocompleteList").style.display = "none"; });
+
+    /* =========================================
+       TAB 1: LOBBY SEARCH & ADD
+    ========================================= */
+    function renderQuickLoad() {
+        const div = document.getElementById("quickLoadList");
+        div.innerHTML = savedTeams.length ? "" : "<p style='color:#aaa; font-size:12px;'>No teams saved.</p>";
+        savedTeams.forEach(t => {
+            const row = document.createElement("div"); row.className = "team-list-item";
+            row.innerHTML = `
+                <div onclick="quickLoadSearch('${t.id}')" style="flex:1;"><strong>${t.name}</strong> <span style="font-size:11px; color:#aaa;">(${t.members.length}/5)</span></div>
+                <button class="btn-quick-del" onclick="quickDeleteTeam(${t.id}, event)">X</button>`;
+            div.appendChild(row);
+        });
+    }
+    function quickLoadSearch(id) {
+        const t = savedTeams.find(x => x.id == id); if(!t) return;
+        const names = t.members.map(m => m.name).join(", ") + ", ";
+        document.getElementById('charName').value = names;
+        findParty();
+    }
+    function quickDeleteTeam(id, e) {
+        e.stopPropagation(); const t = savedTeams.find(x => x.id === id);
+        if(confirm(`Delete team "${t.name}" and its hunt history?`)) {
+            savedTeams = savedTeams.filter(x => x.id !== id);
+            savedHunts = savedHunts.filter(h => h.teamId !== id); 
+            localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
+            localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
+            renderQuickLoad(); renderSavedTeams(); populateHuntDropdowns(); renderSpawnFolders();
+            buildRolodex();
+        }
+    }
+
+    async function findParty() {
+        document.getElementById("autocompleteList").style.display = "none";
+        const inputStr = document.getElementById('charName').value;
+        const statusEl = document.getElementById('status'); const resEl = document.getElementById('results');
+        
+        let names = inputStr.split(',').map(n => n.trim()).filter(Boolean).slice(0, 5);
+        document.getElementById('charName').value = names.join(", ");
+        if (names.length === 0) { statusEl.innerText = "Please enter character names."; return; }
+
+        statusEl.innerText = "Fetching characters..."; resEl.innerHTML = "";
+        try {
+            const charData = await Promise.all(names.map(n => fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(n)}`).then(r => r.json())));
+            let members = [], missing = [], worlds = [];
+            
+            charData.forEach((d, i) => {
+                if (d.character.character && d.character.character.name) {
+                    members.push(d.character.character);
+                    if(d.character.character.world) worlds.push(d.character.character.world);
+                }
+                else missing.push(names[i]);
+            });
+
+            if (members.length === 0) { statusEl.innerHTML = `<span style="color:#ed4245;">Characters not found.</span>`; return; }
+
+            // STRICT WORLD CHECK
+            const uniqueWorlds = [...new Set(worlds)];
+            if(uniqueWorlds.length > 1) {
+                statusEl.innerText = "";
+                resEl.innerHTML = `<div style="background:#ed4245; color:white; padding:15px; border-radius:4px; text-align:center; font-weight:bold;">Error: The entered characters are on different worlds (${uniqueWorlds.join(", ")}). Please only search for players on the same world!</div>`;
+                return;
+            }
+
+            const world = uniqueWorlds[0];
+            let minLvl = Infinity, maxLvl = 0; let vocs = new Set(), pNames = [];
+            members.forEach(c => { minLvl = Math.min(minLvl, c.level); maxLvl = Math.max(maxLvl, c.level); vocs.add(getBaseVoc(c.vocation)); pNames.push(c.name); });
+
+            const reqMin = Math.ceil((maxLvl * 2) / 3); const reqMax = Math.floor((minLvl * 3) / 2);
+            if (reqMin > reqMax) { resEl.innerHTML = `<div style="background:#ed4245; color:white; padding:10px; border-radius:4px; text-align:center;">Cannot share EXP! Lowest: ${minLvl} | Highest: ${maxLvl}</div>`; return; }
+
+            let missingVocs = CORE_VOCS.filter(v => !vocs.has(v)); if (missingVocs.length === 0) missingVocs = CORE_VOCS; 
+
+            statusEl.innerText = `Fetching online on ${world}...`;
+            const worldData = await fetch(`https://api.tibiadata.com/v4/world/${world}`).then(r => r.json());
+            const matches = {}; missingVocs.forEach(v => matches[v] = []);
+            
+            (worldData.world.online_players || []).forEach(p => {
+                if (!pNames.includes(p.name) && p.level >= reqMin && p.level <= reqMax) {
+                    const v = getBaseVoc(p.vocation); if (missingVocs.includes(v)) matches[v].push(p);
+                }
+            });
+
+            window.tempTeamObj = { world: world, members: members.map(m=>({name:m.name, level:m.level, vocation:getBaseVoc(m.vocation), profile:{}})) };
+            
+            statusEl.innerText = "";
+            let html = `<div class="panel" style="margin-bottom:15px; border-top:none; border-left:3px solid #f1c40f; position:relative; padding:10px;">
+                <strong>Active Search Party (${members.length}/5):</strong><br>`;
+            members.forEach(m => { html += `<div class="member-badge" style="cursor:default; padding:4px 8px; font-size:12px;">${m.name} (${m.level} ${getBaseVoc(m.vocation)})</div>`; });
+            html += `<div style="font-size:11px; margin-top:5px; color:#aaa;">World: ${world} | Share: ${reqMin} - ${reqMax}</div></div>`;
+
+            let foundAny = false;
+            for (const voc of missingVocs) {
+                if (matches[voc].length > 0) {
+                    foundAny = true; matches[voc].sort((a, b) => b.level - a.level);
+                    html += `<div style="margin-bottom:15px;"><h3 style="font-size:14px; margin-bottom:5px;">Needed: ${voc}s (${matches[voc].length})</h3>`;
+                    matches[voc].forEach(p => {
+                        html += `<div class="player-row"><div><strong>${p.name}</strong> - Lvl ${p.level}</div>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-success btn-small" onclick="copyText('${p.name}')">Name</button>
+                                <button class="btn-warning btn-small" onclick="copyText('${MSG_COPY}')">Msg</button>
+                                <button class="btn-primary btn-small" onclick="openAddPlayerModal('${p.name}', ${p.level}, '${voc}')">+ Add</button>
+                            </div></div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            if (!foundAny) html += `<p style="text-align:center; color:#aaa;">No missing vocations online.</p>`;
+            resEl.innerHTML = html;
+        } catch (e) { statusEl.innerText = "Error fetching API."; }
+    }
+
+    function openAddPlayerModal(name, level, voc) {
+        tempRecruit = { name, level, vocation: voc, profile: {} };
+        document.getElementById("modalPlayerName").innerText = `Recruit ${name}`;
+        
+        let opts = `<option value="NEW">-- Create New Team --</option>`;
+        opts += savedTeams.map(t => `<option value="${t.id}">${t.name} (${t.members.length}/5)</option>`).join("");
+        document.getElementById("modalTeamSelect").innerHTML = opts;
+        
+        document.getElementById("addPlayerModal").style.display = "flex";
+    }
+
+    function confirmAddPlayer() {
+        const val = document.getElementById("modalTeamSelect").value;
+        if(val === "NEW") {
+            const teamName = prompt("Name your new team:");
+            if(!teamName) return;
+            const newTeam = { id: Date.now(), name: teamName, world: window.tempTeamObj.world, members: [...window.tempTeamObj.members, tempRecruit] };
+            newTeam.members = newTeam.members.filter((v,i,a)=>a.findIndex(v2=>(v2.name===v.name))===i);
+            savedTeams.push(newTeam); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
+            showToast(`Team '${teamName}' created!`);
+        } else {
+            const t = savedTeams.find(x => x.id === parseInt(val)); if(!t) return;
+            if(t.members.length >= 5) { showToast("Team is full!", true); return; }
+            if(t.members.find(m => m.name === tempRecruit.name)) { showToast("Already in team.", true); return; }
+            t.members.push(tempRecruit); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams));
+            showToast(`Added to ${t.name}!`); 
+        }
+        
+        document.getElementById("addPlayerModal").style.display = "none";
+        renderQuickLoad(); renderSavedTeams(); buildRolodex(); populateHuntDropdowns();
+    }
+
+    /* --- TRANSLATOR --- */
+    let transTimeout;
+    function debounceTranslate() { clearTimeout(transTimeout); transTimeout = setTimeout(translateText, 500); }
+    function swapTranslator() {
+        let from = document.getElementById("transFrom").value; let to = document.getElementById("transTo").value;
+        let outText = document.getElementById("transOutput").value;
+        if(from === "auto") from = "en"; 
+        document.getElementById("transFrom").value = to; document.getElementById("transTo").value = from;
+        document.getElementById("transInput").value = outText; document.getElementById("transOutput").value = "";
+        translateText();
+    }
+    async function translateText() {
+        const txt = document.getElementById("transInput").value.trim(); const out = document.getElementById("transOutput");
+        if(!txt) { out.value = ""; return; }
+        try {
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${document.getElementById("transFrom").value}&tl=${document.getElementById("transTo").value}&dt=t&q=${encodeURIComponent(txt)}`);
+            const data = await res.json(); out.value = data[0].map(x => x[0]).join("");
+        } catch(e) { out.value = "Error translating."; }
+    }
+
+    /* --- QUICK MAPS --- */
+    function renderQuickMaps() {
+        const grid = document.getElementById("quickMapsGrid"); grid.innerHTML = "";
+        if(savedMaps.length === 0) { grid.innerHTML = "<span style='color:#aaa; font-size:12px;'>No maps saved.</span>"; return; }
+        savedMaps.slice(0, 4).forEach(m => { 
+            grid.innerHTML += `
+                <div class="qmap-card" onclick="copyMapData('${m.id}')">
+                    <img src="${m.image}">
+                    <div class="qmap-overlay">
+                        <span style="font-size:10px; font-weight:bold; color:#f1c40f; margin-bottom:5px; text-align:center;">${m.title}</span>
+                        <button class="btn-success btn-small">Copy to Discord</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    /* --- QUICK SPLITTER --- */
+    function quickSplitLoot() {
+        const log = document.getElementById("quickSplitInput").value;
+        if(!log.trim()) { showToast("Paste a log first!", true); return; }
+        try {
+            const data = parseLogData(log);
+            if(data.players.length === 0) { showToast("No players found", true); return; }
+            if(data.pBal===0) data.pBal = data.players.reduce((s,p)=>s+p.bal,0);
+            let fairShare = data.pBal / data.players.length; let transfers = [];
+            data.players.forEach(p => p.diff = p.bal - fairShare);
+            data.players.filter(p => p.diff > 0).forEach(p => {
+                data.players.filter(r => r.diff < 0).forEach(r => {
+                    if (p.diff > 1 && Math.abs(r.diff) > 1) {
+                        let t = Math.min(p.diff, Math.abs(r.diff)); transfers.push(`${p.name} pays ${formatNumber(t)} to ${r.name}`);
+                        p.diff -= t; r.diff += t;
+                    }
+                });
+            });
+            let outStr = `Total Profit: ${data.pBal.toLocaleString()} | Share: ${Math.floor(fairShare).toLocaleString()}/ea\n`;
+            outStr += transfers.length ? transfers.join("\n") : "Perfectly balanced!";
+            copyText(outStr);
+            document.getElementById("quickSplitInput").value = "";
+        } catch(e) { showToast("Error parsing log", true); }
+    }
+
+
+    /* =========================================
+       TAB 2: MY TEAMS (ROSTER & CRM)
+    ========================================= */
+    function renderSavedTeams() {
+        const listDiv = document.getElementById("savedTeamsList");
+        listDiv.innerHTML = savedTeams.length ? "" : "<p style='color:#aaa; font-size:13px;'>No teams saved.</p>";
+        savedTeams.forEach(t => {
+            const div = document.createElement("div"); div.className = "team-list-item " + (t.id === activeTeamId ? "active" : "");
+            div.innerHTML = `<strong>${t.name}</strong> <span style="font-size:11px; color:#aaa;">(${t.members.length}/5)</span>`;
+            div.onclick = () => selectTeam(t.id);
+            listDiv.appendChild(div);
+        });
+        if(!activeTeamId && savedTeams.length > 0) selectTeam(savedTeams[0].id);
+        else if(savedTeams.length === 0) document.getElementById("teamEditorPanel").style.display = "none";
+    }
+
+    function selectTeam(id) {
+        activeTeamId = id; isEditMode = false; const t = savedTeams.find(x => x.id === id); if(!t) return;
+        document.getElementById("teamEditorPanel").style.display = "block";
+        document.getElementById("dashTeamName").innerText = `${t.name}`;
+        
+        document.getElementById("btnEditTeam").innerText = "Manage Roster"; document.getElementById("btnEditTeam").className = "btn-warning";
+        document.getElementById("addMemberBox").style.display = "none";
+        renderTeamMembers(); renderSavedTeams(); 
+    }
+
+    function renderTeamMembers() {
+        const t = savedTeams.find(x => x.id === activeTeamId); if(!t) return;
+        const cont = document.getElementById("dashTeamMembers"); cont.className = isEditMode ? "edit-mode" : "";
+        cont.innerHTML = "";
+        t.members.forEach((m, i) => {
+            if(!m.profile) m.profile = {}; 
+            let discStr = m.profile.discord ? `<div onclick="copyText('${m.profile.discord}')">Copy Discord: ${m.profile.discord}</div>` : "";
+            cont.innerHTML += `
+                <div class="member-badge" onclick="viewDossier('${m.name}')">
+                    ${m.name} (${m.level} ${m.vocation})
+                    <div class="hover-links" onclick="event.stopPropagation()">
+                        <a href="https://www.tibia.com/community/?subtopic=characters&name=${formatName(m.name)}" target="_blank">Tibia.com</a>
+                        <a href="https://guildstats.eu/character?nick=${formatName(m.name)}" target="_blank">GuildStats</a>
+                        ${discStr}
+                    </div>
+                    <button class="badge-edit-btn" onclick="openEditDossier('${m.name}', event)">✏️</button>
+                    <button class="badge-kick-btn" onclick="removeMember(${i}, event)">X</button>
+                </div>`;
+        });
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode; const btn = document.getElementById("btnEditTeam");
+        if(isEditMode) { btn.innerText = "Done"; btn.className = "btn-success"; document.getElementById("addMemberBox").style.display = "flex"; }
+        else { btn.innerText = "Manage Roster"; btn.className = "btn-warning"; document.getElementById("addMemberBox").style.display = "none"; }
+        renderTeamMembers();
+    }
+    function removeMember(idx, e) { e.stopPropagation(); savedTeams.find(x=>x.id===activeTeamId).members.splice(idx, 1); localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams)); renderTeamMembers(); renderSavedTeams(); buildRolodex(); }
+    
+    async function addMemberToActiveTeam() {
+        const t = savedTeams.find(x => x.id === activeTeamId); if(t.members.length >= 5) { showToast("Full!", true); return; }
+        const input = document.getElementById("newMemberInput"); const name = input.value.trim(); if(!name) return;
+        input.value = "Verifying..."; input.disabled = true;
+        try {
+            const char = (await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`).then(r=>r.json())).character.character;
+            if(!char || !char.name) { showToast("Not found", true); }
+            else if(t.members.find(m => m.name === char.name)) { showToast("Already in team.", true); }
+            else {
+                t.members.push({ name: char.name, level: char.level, vocation: getBaseVoc(char.vocation), profile: {} });
+                localStorage.setItem("tibiaTeams", JSON.stringify(savedTeams)); showToast("Added!"); renderTeamMembers(); renderSavedTeams(); buildRolodex();
+            }
+        } catch(e) { showToast("Error", true); }
+        input.value = ""; input.disabled = false;
+    }
+
+    function viewDossier(name) {
+        if(isEditMode) return;
+        let member; savedTeams.forEach(t => t.members.forEach(m => { if(m.name === name) member = m; }));
+        if(!member) return;
+        document.getElementById("vdName").innerText = member.name;
+        document.getElementById("vdVoc").innerText = `Lvl ${member.level} ${member.vocation}`;
+        document.getElementById("vdReal").innerText = member.profile?.realName || "Unknown";
+        document.getElementById("vdLoc").innerText = member.profile?.location || "Unknown";
+        document.getElementById("vdAlts").innerText = member.profile?.alts || "None";
+        
+        const discEl = document.getElementById("vdDisc"); const btnCopy = document.getElementById("vdCopyDisc");
+        if(member.profile?.discord) { discEl.innerText = member.profile.discord; btnCopy.style.display = "inline-block"; } 
+        else { discEl.innerText = "None"; btnCopy.style.display = "none"; }
+        document.getElementById("viewDossierModal").style.display = "flex";
+    }
+
+    function openEditDossier(name, e) {
+        e.stopPropagation(); let member; savedTeams.forEach(t => t.members.forEach(m => { if(m.name === name) member = m; }));
+        if(!member) return;
+        document.getElementById("edCharName").value = member.name;
+        document.getElementById("edReal").value = member.profile?.realName || "";
+        document.getElementById("edLoc").value = member.profile?.location || "";
+        document.getElementById("edDisc").value = member.profile?.discord || "";
+        document.getElementById("edAlts").value = member.profile?.alts || "";
+        document.getElementById("editDossierModal").style.display = "flex";
+    }
+
+    function saveDossier() {
+        const name = document.getElementById("edCharName").value;
+        const profile = {
+            realName: document.getElementById("edReal").value.trim(),
+            location: document.getElementById("edLoc").value.trim(),
+            discord: document.getElementById("edDisc").value.trim(),
+            alts: document.getElementById("edAlts").value.trim()
+        };
+        syncProfile(name, profile);
+        document.getElementById("editDossierModal").style.display = "none";
+        renderTeamMembers(); showToast("Profile Saved!");
+    }
+
+
+    /* =========================================
+       TAB 3: MY HUNTS (ANALYTICS HUB)
+    ========================================= */
+    function populateHuntDropdowns() {
+        const sel = document.getElementById("huntTeamSelect");
+        sel.innerHTML = `<option value="">Select Team...</option>` + savedTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+        const dl = document.getElementById("recentSpawnsList");
+        dl.innerHTML = [...new Set(savedHunts.map(h => h.spawn))].map(s => `<option value="${s}">`).join("");
+    }
+
+    function formatNumber(num) {
+        if(num >= 1000000) return (num/1000000).toFixed(1) + "kk";
+        if(num >= 1000) return (num/1000).toFixed(0) + "k";
+        return num.toLocaleString();
+    }
+
+    function parseLogData(log) {
+        const lines = log.split('\n').map(l => l.trim()).filter(Boolean);
+        let pLoot=0, pSupp=0, pBal=0, pDmg=0, pHeal=0, pXp=0, durationMins=60, players=[], curP=null;
+        lines.forEach(l => {
+            if(l.startsWith("Session data: From")) {
+                try {
+                    let parts = l.replace("Session data: From ", "").split(" to ");
+                    let d1 = new Date(parts[0].replace(",", "")); let d2 = new Date(parts[1].replace(",", ""));
+                    durationMins = (d2 - d1) / 60000; if(durationMins <= 0 || isNaN(durationMins)) durationMins = 60;
+                } catch(e){}
+            }
+            else if(l.startsWith("Loot:") && !curP) pLoot = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("Supplies:") && !curP) pSupp = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("Balance:") && !curP) pBal = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("Damage:") && !curP) pDmg = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("Healing:") && !curP) pHeal = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+            else if(l.startsWith("XP Gain:") && !curP) pXp = parseInt(l.split(":")[1].replace(/,/g, '')) || 0;
+        });
+
+        for (let i = 0; i < lines.length; i++) {
+            const l = lines[i];
+            if (!l.includes(':') && lines[i+1] && lines[i+1].includes('Loot:')) {
+                if(curP) players.push(curP); curP = { name: l.replace(' (Leader)', ''), bal:0, dmg:0, heal:0 };
+            } else if (curP) {
+                let val = parseInt(l.split(":")[1]?.replace(/,/g, '')) || 0;
+                if(l.startsWith('Balance:')) curP.bal = val;
+                if(l.startsWith('Damage:')) curP.dmg = val;
+                if(l.startsWith('Healing:')) curP.heal = val;
+            }
+        }
+        if(curP) players.push(curP);
+        return { players, pBal, pDmg, pHeal, pXp, durationMins, pLoot, pSupp };
+    }
+
+    function calculateLootOnly() {
+        const log = document.getElementById("huntLog").value; const resEl = document.getElementById("lootResult");
+        if (!log.trim()) { resEl.innerHTML = "Paste log first."; resEl.style.display="block"; return null; }
+        document.getElementById("huntSpawnInput").style.borderColor = "#444"; 
+        
+        try {
+            const data = parseLogData(log);
+            if(data.players.length === 0) { resEl.innerHTML = "No players found in log."; resEl.style.display="block"; return null; }
+            if(data.pBal===0) data.pBal = data.players.reduce((s,p)=>s+p.bal,0);
+            if(data.pDmg===0) data.pDmg = data.players.reduce((s,p)=>s+p.dmg,0);
+            if(data.pHeal===0) data.pHeal = data.players.reduce((s,p)=>s+p.heal,0);
+
+            let fairShare = data.pBal / data.players.length; let transfers = [];
+            data.players.forEach(p => p.diff = p.bal - fairShare);
+            data.players.filter(p => p.diff > 0).forEach(p => {
+                data.players.filter(r => r.diff < 0).forEach(r => {
+                    if (p.diff > 1 && Math.abs(r.diff) > 1) {
+                        let t = Math.min(p.diff, Math.abs(r.diff)); transfers.push(`${p.name} pays ${formatNumber(t)} to ${r.name}`);
+                        p.diff -= t; r.diff += t;
+                    }
+                });
+            });
+
+            resEl.innerHTML = `<strong>Balance:</strong> ${data.pBal.toLocaleString()} | <strong>Share:</strong> ${Math.floor(fairShare).toLocaleString()}/ea<br>` + (transfers.length ? `<br><strong style='color:#f1c40f;'>Transfers:</strong><br>` + transfers.join("<br>") : "<br><strong style='color:#3ba55c;'>Perfectly balanced!</strong>");
+            resEl.style.display = "block";
+
+            let xpHr = (data.pXp / data.durationMins) * 60;
+            let tt = `💰 Loot: ${formatNumber(data.pLoot)} | 🛒 Supp: ${formatNumber(data.pSupp)} | ⚖️ Bal: ${formatNumber(data.pBal)}\n`;
+            tt += `⚔️ Team Dmg: ${formatNumber(data.pDmg)} | 💖 Team Heal: ${formatNumber(data.pHeal)}\n\n📊 Breakdown:\n`;
+            data.players.forEach(p => tt += `• ${p.name}: ${formatNumber(p.dmg)} Dmg / ${formatNumber(p.heal)} Heal\n`);
+            tt += `\n💸 Transfers:\n` + (transfers.length ? transfers.join("\n") : "None");
+
+            return { date: new Date().toLocaleDateString(), durationMins: data.durationMins, profit: data.pBal, xp: data.pXp, xpHr, tooltipText: tt };
+        } catch(e) { resEl.innerHTML = "Error parsing log."; resEl.style.display="block"; return null; }
+    }
+
+    function calculateAndSaveHunt() {
+        const spawnInput = document.getElementById("huntSpawnInput");
+        const spawn = spawnInput.value.trim();
+        const tId = document.getElementById("huntTeamSelect").value;
+        
+        spawnInput.style.borderColor = "#444";
+        if(!spawn) { spawnInput.style.borderColor = "#ed4245"; showToast("Enter a Respawn Name!", true); return; }
+        if(!tId) { showToast("Select a Team!", true); return; }
+
+        const huntData = calculateLootOnly();
+        if(huntData) {
+            huntData.id = Date.now(); huntData.spawn = spawn; huntData.teamId = parseInt(tId);
+            savedHunts.unshift(huntData); localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
+            showToast("Hunt Saved & Calculated!");
+            spawnInput.value = ""; document.getElementById("huntLog").value = "";
+            populateHuntDropdowns(); renderSpawnFolders();
+            document.querySelectorAll('.folder-item').forEach(x=>x.classList.remove('active'));
+            loadMetrics(spawn);
+        }
+    }
+
+    function renderSpawnFolders() {
+        const div = document.getElementById("spawnFolderList"); div.innerHTML = "";
+        const spawns = [...new Set(savedHunts.map(h => h.spawn))];
+        if(spawns.length === 0) { div.innerHTML = "<span style='color:#aaa; font-size:12px;'>No hunts saved yet.</span>"; document.getElementById("metricsDashboard").style.display="none"; return; }
+        
+        spawns.forEach(s => {
+            const hCount = savedHunts.filter(h => h.spawn === s).length;
+            const item = document.createElement("div"); 
+            item.className = "folder-item " + (activeSpawnFolder === s ? "active" : "");
+            item.innerHTML = `📁 ${s} <span style="float:right; color:#aaa; font-size:12px;">${hCount} hunts</span>`;
+            item.onclick = () => { document.querySelectorAll('.folder-item').forEach(x=>x.classList.remove('active')); item.classList.add('active'); loadMetrics(s); };
+            div.appendChild(item);
+        });
+        if(activeSpawnFolder && spawns.includes(activeSpawnFolder)) loadMetrics(activeSpawnFolder);
+    }
+
+    function loadMetrics(spawnName) {
+        activeSpawnFolder = spawnName;
+        const hunts = savedHunts.filter(h => h.spawn === spawnName);
+        document.getElementById("metricsDashboard").style.display = "block";
+        document.getElementById("metricSpawnTitle").innerText = spawnName;
+
+        let totProf = 0, totMins = 0, peakXp = 0;
+        hunts.forEach(h => { totProf += h.profit; totMins += h.durationMins; peakXp = Math.max(peakXp, h.xpHr || 0); });
+        
+        document.getElementById("metTotalProf").innerText = formatNumber(totProf);
+        document.getElementById("metTotalHrs").innerText = (totMins / 60).toFixed(1) + "h";
+        document.getElementById("metPeakXp").innerText = formatNumber(peakXp);
+        document.getElementById("metAvgProf").innerText = formatNumber(totProf / (totMins / 60 || 1));
+
+        const chart = document.getElementById("profitChart"); chart.innerHTML = "";
+        const recent = hunts.slice(0, 10).reverse(); 
+        const maxProf = Math.max(...recent.map(h => Math.abs(h.profit)), 1); 
+
+        recent.forEach(h => {
+            const bar = document.createElement("div"); bar.className = "chart-bar";
+            let hgt = (Math.abs(h.profit) / maxProf) * 100; bar.style.height = hgt + "%";
+            if(h.profit < 0) bar.style.backgroundColor = "#ed4245";
+            
+            const teamName = savedTeams.find(t=>t.id===h.teamId)?.name || "Unknown Team";
+            bar.innerHTML = `<div class="chart-tooltip"><strong>${h.date} (${teamName})</strong><br>Profit: ${formatNumber(h.profit)}<br>XP/Hr: ${formatNumber(h.xpHr)}</div>`;
+            chart.appendChild(bar);
+        });
+
+        const list = document.getElementById("huntHistoryList");
+        list.innerHTML = hunts.map(h => {
+            const tName = savedTeams.find(t=>t.id===h.teamId)?.name || "Unknown";
+            return `
+            <div class="hunt-log-item">
+                <div style="position:relative; cursor:help;">
+                    <strong>${h.date}</strong> - ${tName}
+                    <div class="chart-tooltip" style="bottom:auto; top:100%; left:0; transform:none; font-family:monospace; min-width:250px;">${h.tooltipText}</div>
+                </div>
+                <div style="color:${h.profit >= 0 ? '#3ba55c' : '#ed4245'}; font-weight:bold;">${formatNumber(h.profit)}</div>
+                <button class="badge-kick-btn" style="display:block; padding:2px 5px;" onclick="deleteHunt(${h.id})">X</button>
+            </div>`;
+        }).join("");
+    }
+
+    function deleteHunt(id) {
+        if(confirm("Remove this hunt record?")) {
+            savedHunts = savedHunts.filter(h => h.id !== id);
+            localStorage.setItem("tibiaHunts", JSON.stringify(savedHunts));
+            populateHuntDropdowns(); renderSpawnFolders();
+        }
+    }
+
+    /* ================= TAB 4: MY MAPS (Strategy) ================= */
+    const canvas = document.getElementById('strategyMap'); const ctx = canvas.getContext('2d');
+    let isDrawing = false, currentBrushColor = '#ff5252', baseImage = new Image(), historyArr = [];
+
+    function uploadMap(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            baseImage.onload = function() {
+                document.getElementById('canvasPlaceholder').style.display = 'none'; canvas.style.display = 'block';
+                canvas.width = baseImage.width; canvas.height = baseImage.height;
+                ctx.drawImage(baseImage, 0, 0); saveState();
+            }; baseImage.src = event.target.result;
+        }; reader.readAsDataURL(file);
+    }
+    function setColor(btn, color) { document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentBrushColor = color; }
+    
+    canvas.addEventListener('mousedown', startPos); canvas.addEventListener('touchstart', startPos);
+    canvas.addEventListener('mouseup', endPos); canvas.addEventListener('touchend', endPos);
+    canvas.addEventListener('mousemove', draw); canvas.addEventListener('touchmove', draw);
+
+    function getMousePos(e) {
+        const rect = canvas.getBoundingClientRect();
+        let cx = e.touches ? e.touches[0].clientX : e.clientX; let cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - rect.left) * (canvas.width / rect.width), y: (cy - rect.top) * (canvas.height / rect.height) };
+    }
+    function startPos(e) { e.preventDefault(); isDrawing = true; draw(e); }
+    function endPos(e) { e.preventDefault(); isDrawing = false; ctx.beginPath(); saveState(); }
+    function draw(e) {
+        if (!isDrawing) return; e.preventDefault();
+        const pos = getMousePos(e);
+        ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = currentBrushColor;
+        ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+    }
+    function saveState() { historyArr.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); }
+    function undoMap() { if(historyArr.length > 1) { historyArr.pop(); ctx.putImageData(historyArr[historyArr.length-1], 0, 0); } }
+    function clearMap() { if(!baseImage.src) return; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(baseImage, 0, 0); historyArr = []; saveState(); }
+    
+    function saveMapToVault() {
+        if(!baseImage.src) { showToast("Upload map first", true); return; }
+        const title = prompt("Name this strategy map (e.g. 'Ingol Trap'):"); if(!title) return;
+        savedMaps.push({ id: Date.now(), title, date: new Date().toLocaleDateString(), image: canvas.toDataURL("image/jpeg", 0.7) });
+        localStorage.setItem("tibiaMaps", JSON.stringify(savedMaps));
+        showToast("Saved to Map Vault!"); renderMapVault(); renderQuickMaps();
+    }
+
+    function renderMapVault() {
+        const gal = document.getElementById("mapVaultGrid"); gal.innerHTML = "";
+        if(savedMaps.length === 0) { gal.innerHTML = "<p style='color:#aaa;'>No maps saved.</p>"; return; }
+        savedMaps.forEach(m => {
+            gal.innerHTML += `
+                <div class="map-card">
+                    <img src="${m.image}">
+                    <div style="font-weight:bold; color:#f1c40f; margin-bottom:5px;">${m.title}</div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-success" style="flex:1;" onclick="copyMapData('${m.id}')">Copy to Discord</button>
+                        <button class="btn-danger" onclick="deleteMap('${m.id}')">X</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    async function copyMapData(id) {
+        const m = savedMaps.find(x => x.id == id); if(!m) return;
+        try {
+            const res = await fetch(m.image); const blob = await res.blob();
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => showToast("Copied to Discord!")).catch(()=>showToast("Copy failed", true));
+        } catch(e) { showToast("Error copying", true); }
+    }
+    function deleteMap(id) {
+        if(confirm("Delete this map?")) { savedMaps = savedMaps.filter(x => x.id != id); localStorage.setItem("tibiaMaps", JSON.stringify(savedMaps)); renderMapVault(); renderQuickMaps(); }
+    }
+</script>
+</body>
+</html>
